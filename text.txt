@@ -1,0 +1,20 @@
+0 AIR white
+
+
+13 DIRT sienna
+14 HARMED DIRT saddlebrown
+15 BROKEN DIRT maroon
+
+23 STONE slategray
+24 HARMED STONE darkgray
+25 BROKEN STONE gray
+
+999 BEDROCK
+
+
+
+TODO:
+darkness
+ores
+shop
+worldgen
