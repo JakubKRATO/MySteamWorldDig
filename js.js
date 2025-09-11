@@ -231,10 +231,10 @@ const dig = (x,y) => {
     if (target % 10 == 5) {
         if (target == 105 && !(player.bag.length > player.bagSlots - 1)) player.bag.push("Coal")
 
-        if (y > 5 && y < 21) {
+        if (y < 21) {
             world[y][x].type = 1
         }
-        if (y <= 21) {
+        if (y >= 21) {
             world[y][x].type = 2
         }
     }
