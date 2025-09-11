@@ -1,4 +1,13 @@
+0 - 10 = transparent blocks (go through)
+11 - 100 = terrain blocks 
+100 - 998 = ORE blocks
+999 = bedrock
+
+
 0 AIR white
+1 DIRT WALL rgb(104, 53, 30)
+2 STONE WALL rgb(69, 79, 89)
+3 SELL ZONE orange
 
 13 DIRT sienna
 14 HARMED DIRT saddlebrown
@@ -10,6 +19,13 @@
 
 999 BEDROCK
 
+
+## ORES ##
+
+102 COAL rgb(28, 28, 28)
+103 HARMED COAL rgb(40, 39, 39)
+104 DAMAGED COAL rgb(46, 44, 44)
+105 BROKEN COAL rgb(59, 56, 56)
 
 
 TODO:
