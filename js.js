@@ -98,7 +98,7 @@ const renderWorld = () => {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
             block = world[y][x];
-            if (block.darkness) {
+            if (block.darkness && block.type != 0) {
                 setColor("black")
             } else {
                 setColor(colors[block.type])
@@ -159,12 +159,15 @@ const setDarkness = () => {
     for (let y = 0; y < MAX_Y; y++) {
         for (let x = 0; x < MAX_X; x++) {
             try {
-                var blocks = [world[y - 1][x].type || null, world[y - 2][x].type || null, world[y - 3][x].type || null]
+                var blocksY = [world[y - 1][x].type, world[y - 2][x].type, world[y - 3][x].type]
+                var blocksY = [world[y][x - 1].type, world[y - 2][x].type, world[y - 3][x].type]
             } catch (error) {
                 continue
             }   
-            if (!(blocks.includes(0)) && world[y][x].type != 999 && world[y][x].type != 0) {
+            if (!(blocksY.includes(0)) && world[y][x].type != 999 && world[y][x].type != 0) {
                 world[y][x].darkness = true
+            } else if (blocksY.includes(0)) {
+                world[y][x].darkness = false
             }
         }
     }
