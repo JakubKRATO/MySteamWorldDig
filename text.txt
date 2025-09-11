@@ -1,6 +1,5 @@
 0 AIR white
 
-
 13 DIRT sienna
 14 HARMED DIRT saddlebrown
 15 BROKEN DIRT maroon

@@ -4,16 +4,28 @@ const canvas = game.getContext("2d");
 
 const MAX_X = 120;
 const MAX_Y = 250;
+// const MAX_X = 40;
+// const MAX_Y = 25;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
 const TILE_SIZE = 32; //32x32
 const res = "1280x800";
-
 game.width  = 1280;
 game.height = 800;
 
 var world = [];
+var colors = {
+    0: "white",
+    13: "sienna",
+    14: "saddlebrown",
+    15: "maroon",
+    23: "slategray",
+    24: "darkgray",
+    999: "red"
+
+}
+
 var cameraX = 0;
 var cameraY = 0;
 var moveCooldown = 0.5;
@@ -21,12 +33,12 @@ var keys = {}
 
 var player = {
     pos: {
-        x: 0,
+        x: 5,
         y: 5
     }
 }
 
-const main = () => {git remote add origin https://github.com/JakubKRATO/MySteamWorldDig.git
+const main = () => {
     startButton.style.display = "none";
     game.requestFullscreen();
 
@@ -34,6 +46,7 @@ const main = () => {git remote add origin https://github.com/JakubKRATO/MySteamW
     setInterval(() => {
         updatePlayer()
         renderWorld()
+        setDarkness()
         moveCooldown -= 0.033; // 33ms = 0.033s
     }, 33); // ~30 FPS
 
@@ -43,17 +56,26 @@ const generateWorld = () => {
     for (let y = 0; y < MAX_Y; y++) {
         world.push([]);
         for (let x = 0; x < MAX_X; x++) {
-
-            if (y > 20) {
-                world[y][x] = 23
-            } else if (y > 5) {
-                world[y][x] = 13
-            } else {
-                world[y][x] = 0
+            world[y][x] = {
+                type: null,
+                darkness: null
             }
+            if (y == MAX_Y - 1) {
+                world[y][x].type = 999
+                world[y][x].darkness = false
+            } else if (y > 20) {
+                world[y][x].type = 23
+                world[y][x].darkness = true
+            } else if (y > 5) {
+                world[y][x].type = 13
+                world[y][x].darkness = true
+            } else {
+                world[y][x].type = 0
+                world[y][x].darkness = false
+            }
+            world[y][x].color = colors[world[y][x].type]
         }
     }
-    console.log(world);
 };
 
 const renderWorld = () => {
@@ -68,24 +90,19 @@ const renderWorld = () => {
     // cache for readability
     const startX = cameraX;
     const startY = cameraY;
-    var tile;
+    var block;
 
     canvas.clearRect(0, 0, game.width, game.height);
 
     for (let y = cameraY; y < cameraY + DISPLAY_Y; y++) {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
-            tile = world[y][x];
-
-            if (tile == 0) setColor("white");
-
-            if (tile == 13) setColor("sienna");
-            if (tile == 14) setColor("saddlebrown")
-            if (tile == 15) setColor("maroon")
-
-            if (tile == 23) setColor("slategray");
-            if (tile == 25) setColor("darkgray");                
-            if (tile == 24) setColor("gray");
+            block = world[y][x];
+            if (block.darkness) {
+                setColor("black")
+            } else {
+                setColor(colors[block.type])
+            }
 
             canvas.fillRect(
                 (x - startX) * TILE_SIZE,
@@ -109,26 +126,26 @@ const updatePlayer = () => {
     if (moveCooldown > 0) return
 
     if (keys["w"]) {
-        if (world[player.pos.y - 1][player.pos.x] == 0) {
+        if (world[player.pos.y - 1][player.pos.x].type == 0) {
             player.pos.y--;
         }
     }
     if (keys["a"]) {
-        if (world[player.pos.y][player.pos.x - 1] == 0) {
+        if (world[player.pos.y][player.pos.x - 1].type == 0) {
             player.pos.x--;
         } else {
             dig(player.pos.x - 1, player.pos.y)
         }
     }
     if (keys["s"]) {
-        if (world[player.pos.y + 1][player.pos.x] == 0) {
+        if (world[player.pos.y + 1][player.pos.x].type == 0) {
             player.pos.y++;
         } else {
             dig(player.pos.x, player.pos.y + 1);
         }
     }
     if (keys["d"]) {
-        if (world[player.pos.y][player.pos.x + 1] == 0) {
+        if (world[player.pos.y][player.pos.x + 1].type == 0) {
             player.pos.x++;
         } else {
             dig(player.pos.x + 1, player.pos.y);
@@ -138,17 +155,31 @@ const updatePlayer = () => {
     moveCooldown = 0.3;
 };
 
+const setDarkness = () => {
+    for (let y = 0; y < MAX_Y; y++) {
+        for (let x = 0; x < MAX_X; x++) {
+            try {
+                var blocks = [world[y - 1][x].type || null, world[y - 2][x].type || null, world[y - 3][x].type || null]
+            } catch (error) {
+                continue
+            }   
+            if (!(blocks.includes(0)) && world[y][x].type != 999 && world[y][x].type != 0) {
+                world[y][x].darkness = true
+            }
+        }
+    }
+};
 const setColor = (color) => {
     canvas.fillStyle = color
 }
 const dig = (x,y) => {
-    let target = world[y][x];
+    let target = world[y][x].type;
     if (target > 9 && !(target % 10 == 5)) {
-        world[y][x]++;
+        world[y][x].type++;
     } 
 
     if (target % 10 == 5) {
-        world[y][x] = 0;
+        world[y][x].type = 0;
     }
 };
 
