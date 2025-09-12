@@ -181,7 +181,7 @@ const dig = (x,y) => {
         world[y][x].type++;
     } 
 
-    if (target % 10 == 5) {
+    if (target % 10 == 5 && target > 900) {
         world[y][x].type = 0;
     }
 };
