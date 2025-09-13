@@ -406,7 +406,11 @@ const setDarkness = () => {
 
     for (let y of blocks) {
         for (let x of blocks) {
-            world[player.pos.y + y][player.pos.x + x].darkness = false
+            try {
+                world[player.pos.y + y][player.pos.x + x].darkness = false
+            } catch (error) {
+                continue
+            }
         }
     }
 };
