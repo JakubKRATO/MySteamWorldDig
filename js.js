@@ -2,7 +2,10 @@ const startButton = document.getElementsByTagName("button")[0];
 const game = document.getElementsByTagName("canvas")[0];
 const canvas = game.getContext("2d");
 
-const MAX_X = 120;
+const ShopElement = document.getElementsByClassName("shop")[0];
+const li = ShopElement.getElementsByTagName("li")
+
+const MAX_X = 80;
 const MAX_Y = 250;
 
 const DISPLAY_X = 40;
@@ -15,12 +18,13 @@ const res = "1280x800";
 game.width  = 1280;
 game.height = 800;
 
-var world = [];
-var colors = {
+/* CONFIG AREA */
+const colors = {
     0: "white",
     1: "rgb(75, 39, 22)",
     2: "rgb(69, 79, 89)",
     3: "orange",
+    4: "green",
     13: "sienna",
     14: "saddlebrown",
     15: "maroon",
@@ -30,48 +34,133 @@ var colors = {
     103: "rgb(40, 39, 39)",
     104: "rgb(46, 44, 44)",
     105: "rgb(59, 56, 56)",
-    999: "red",
+    999: "rgba(9, 0, 37, 1)",
     BagSlotsColor: "rgba(26, 26, 26, 0.2)"
 }
 const rewards = {
     "Coal": 1
 }
+const ores = {
+    105: "Coal",
+}
+const Shop = {
+    pickaxe: {
+        2: {
+            heading: "Kamený Krompáč",
+            p: "S týmto krompáčom môžeš vyťažiť KAMEŇ!",
+            tier: "T2",
+            price: 15
+        }
+    },
+    bag: {
+        2: {
+            heading: "Malý batoh",
+            p: "Vedieť niesť iba 3 kamene je celkom otravné nie? Nos 4!",
+            tier: "T2",
+            price: 13
+        },
+        3: {
+            heading: "Stredný batoh",
+            p: "S týmto batohom budeš môcť odniesť až 5 kameňov",
+            tier: "T3",
+            price: 30
+        },
+    },
+    lamp: {
+        2: {
+            heading: "Stará sviečka",
+            p: "S touto premium sviečkou by si mal vidieť lepšie v tých baniach",
+            tier: "T2",
+            price: 25
+        },
+        2: {
+            heading: "Ultra Lumen 3000",
+            p: "S touto baterkou určite nájdeš aj skrytý JAKUBOV KAMEŇ... nikomu o ňom nehovor",
+            tier: "T3",
+            price: 50
+        },
+    },
+    swiftPickaxe: {
+        2: {
+            heading: "Rýchly krompáč",
+            p: "Toto špeciálne vylepšenie zrýchli tvoj krompáč o 33.5%      <- číslo som si vymyslel",
+            tier: "",
+            price: 30
+        }
+    },
+    cardio: {
+        2: {
+            heading: "Cardio",
+            p: "Konečne si prestal skipovať cardio v gyme a oplatilo sa! + 5 reputácia a zrýchelný pohyb!",
+            tier: "",
+            price: 50
+        }
+    },
+    player: {
+        pickaxe: 2,
+        bag: 2,
+        lamp: 2,
+        swiftPickaxe: 2,
+        cardio: 2,
+    }
+}
+var player = {
+    pos: {
+        x: 39,
+        y: 5
+    },
+    bag: [],
+    bagSlots: 3,
+    lamp: 1,
+    pickStrength: 15,
+    money: 0
+}
+/* CONFIG AREA */
+
+var world = [];
 
 var cameraX = 0;
 var cameraY = 0;
 var moveCooldown = 0.5;
 var keys = {}
 
-var player = {
-    pos: {
-        x: 60,
-        y: 5
-    },
-    bag: [],
-    bagSlots: 5,
-    money: 0
-}
 
 const main = () => {
-    startButton.style.display = "none";
+    startButton.innerHTML = "Back to game";
+    document.getElementsByTagName("main")[0].style.display = "none";
     game.requestFullscreen();
     generateWorld();
-    setDarkness();
+    surfaceDarkness();
 
+    // Hiding shop
+    ShopElement.style.display = "none";
+    
     // Setup SELL ZONES
-    world[5][62].type = 3;
-    world[5][63].type = 3;
-    world[4][62].type = 3;
-    world[4][63].type = 3;
-    world[6][62].type = 999;
-    world[6][63].type = 999;
+    world[5][42].type = 3;
+    world[5][43].type = 3;
+    world[4][42].type = 3;
+    world[4][43].type = 3;
+    world[6][41].type = 999;
+    world[6][42].type = 999;
+    world[6][43].type = 999;
+    world[6][44].type = 999;
+    
+    world[5][36].type = 4;
+    world[5][35].type = 4;
+    world[4][36].type = 4;
+    world[4][35].type = 4;
+    world[6][37].type = 999;
+    world[6][36].type = 999;
+    world[6][35].type = 999;
+    world[6][34].type = 999;
+
 
     // Main game loop runs here (30 FPS)
     setInterval(() => {
         updatePlayer()
         renderWorld()
-        setDarkness()
         renderGUI()
+        setDarkness()
         moveCooldown -= 0.033; // 33ms = 0.033s
     }, 33); // ~30 FPS
 
@@ -150,12 +239,8 @@ const renderWorld = () => {
 
 };
 
-const updatePlayer = () => {
+const updatePlayer = () => {    
     if (moveCooldown > 0) return
-    world[player.pos.y + 1][player.pos.x - 1].darkness = false
-    world[player.pos.y + 1][player.pos.x + 1].darkness = false
-    world[player.pos.y - 1][player.pos.x + 1].darkness = false
-    world[player.pos.y - 1][player.pos.x - 1].darkness = false
     
     if (keys["w"]) {
         if (world[player.pos.y - 1][player.pos.x].type < 11) {
@@ -165,7 +250,7 @@ const updatePlayer = () => {
     if (keys["a"]) {
         if (world[player.pos.y][player.pos.x - 1].type < 11) {
             player.pos.x--;
-        } else {
+        } else if (world[player.pos.y + 1][player.pos.x].type > 12) {
             dig(player.pos.x - 1, player.pos.y)
         }
     }
@@ -179,14 +264,14 @@ const updatePlayer = () => {
     if (keys["d"]) {
         if (world[player.pos.y][player.pos.x + 1].type < 11) {
             player.pos.x++;
-        } else {
+        } else if (world[player.pos.y + 1][player.pos.x].type > 12){
             dig(player.pos.x + 1, player.pos.y);
         }
     }
-
+    
     if (keys["q"]) { // Selling
         if (world[player.pos.y][player.pos.x].type != 3) return
-
+        
         for (let i = 0; i < player.bagSlots; i++) {
             if (!!player.bag[i]) {
                 player.money += parseInt(rewards[player.bag[i]]);
@@ -195,22 +280,133 @@ const updatePlayer = () => {
         }
         player.bag = []
     }
+    if (keys["e"]) { // Opening shop
+        if (world[player.pos.y][player.pos.x].type != 4) return
 
+        game.exitFullscreen()
+        ShopElement.style.display = "flex"
+    }
     moveCooldown = 0.3;
 };
 
 const setDarkness = () => {
-    for (let y = 0; y < MAX_Y; y++) {
+    let blocks;
+    switch (player.lamp) {
+        case 1:
+            blocks = [-1, 0, 1]
+            break
+        case 2:
+            blocks = [-2, -1, 0, 1, 2]
+            break
+        case 3:
+            blocks = [-3, -2, -1, 0, 1, 2, 3]
+            break
+
+    }
+
+    for (let y of blocks) {
+        for (let x of blocks) {
+            world[player.pos.y + y][player.pos.x + x].darkness = false
+        }
+    }
+};
+
+const dig = (x,y) => {
+    renderGUI()
+    let target = world[y][x].type;
+    if ((target > 9 && !(target > 990) && !(target % 10 == 5) && player.pickStrength >= target) || target > 100 && target < 990) {
+        world[y][x].type++;
+    } 
+    
+    if (target % 10 == 5) {
+        if (target > 100 && target < 900 && !(player.bag.length > player.bagSlots - 1)) player.bag.push(ores[target])
+            
+        if (y < 21) {
+            world[y][x].type = 1
+        }
+        if (y >= 21) {
+            world[y][x].type = 2
+        }
+    }
+};
+
+
+
+const renderGUI = () => {
+    const slotsize = 100
+    const margin = 20
+    
+    const totalWidth = player.bagSlots * slotsize + (player.bagSlots - 1) * margin
+    const startPosX = (game.width - totalWidth) / 2
+    const y = game.height - 120
+    for (let i = 0; i < player.bagSlots; i++) {
+        let x = startPosX + i * (slotsize + margin)
+        
+        setColor(colors.BagSlotsColor)
+        canvas.fillRect(x, y, slotsize, slotsize)
+        
+        canvas.strokeStyle = "rgb(35, 35, 35)"
+        canvas.lineWidth = 2
+        canvas.strokeRect(x,y, slotsize, slotsize)
+        
+        if (player.bag[i]) {
+            canvas.fillStyle = "white"; 
+            canvas.font = "16px Arial";
+            canvas.textAlign = "center";
+            canvas.textBaseline = "middle";
+            canvas.fillText(player.bag[i], x + slotsize / 2, y + slotsize / 2);
+        }
+    }
+    setColor("rgba(13, 13, 13, 1)")
+    canvas.fillRect(20, 20, 40, 20)
+    canvas.strokeRect(20, 20, 40, 20)
+    canvas.fillStyle = "white"; 
+    canvas.font = "16px Arial";
+    canvas.textAlign = "center";
+    canvas.textBaseline = "middle";
+    canvas.fillText(player.money + "$", 40, 32);
+};
+
+const shopRender = () => {
+    for (let i of li) {
+        let left = i.children[0]
+        let attribute = i.attributes["data"].value
+        let data = Shop[attribute][Shop.player[attribute]]
+        
+        
+        left.children[0].innerHTML = data.heading
+        left.children[1].innerHTML = data.p
+        left.children[2].innerHTML = data.tier
+        i.children[1].innerHTML = data.price + "$"
+        
+    }
+};
+shopRender()
+
+document.addEventListener("keydown", (event) => {
+    keys[event.key] = true;
+});
+document.addEventListener("keyup", (event) => {
+    keys[event.key] = false;
+});
+
+function getRandomInt(min, max) {
+    const minCeiled = Math.ceil(min);
+    const maxFloored = Math.floor(max);
+    return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // The maximum is inclusive and the minimum is inclusive
+}
+const surfaceDarkness = () => {
+    for (let y = 0; y < 10; y++) {
         for (let x = 0; x < MAX_X; x++) {
+            let blocks
             try {
-                var blocksY = [world[y - 1][x].type, world[y - 2][x].type, world[y - 3][x].type]
-                var blocksX = [world[y][x - 1].type, world[y][x - 2].type, world[y][x + 1].type, world[y][x + 2].type]
+                blocks = [world[y - 1][x].type, world[y - 2][x].type, world[y - 3][x].type]
             } catch (error) {
+                world[y][x].darkness = false
                 continue
             }
-            
-            for (let i = 0; i < 2; i++) {             
-                if (blocksY.includes(i) || blocksX.includes(i)) {
+            for (let i = 0; i < 10; i++) {
+                if (blocks.includes(i)) {
                     world[y][x].darkness = false
                 }
             }
@@ -221,63 +417,28 @@ const setDarkness = () => {
 const setColor = (color) => {
     canvas.fillStyle = color
 };
-const dig = (x,y) => {
-    renderGUI()
-    let target = world[y][x].type;
-    if (target > 9 && !(target % 10 == 5)) {
-        world[y][x].type++;
-    } 
-
-    if (target % 10 == 5) {
-        if (target == 105 && !(player.bag.length > player.bagSlots - 1)) player.bag.push("Coal")
-
-        if (y < 21) {
-            world[y][x].type = 1
-        }
-        if (y >= 21) {
-            world[y][x].type = 2
-        }
-    }
-};
-
-const renderGUI = () => {
-    const slotsize = 100
-    const margin = 20
-
-    const totalWidth = player.bagSlots * slotsize + (player.bagSlots - 1) * margin
-    const startPosX = (game.width - totalWidth) / 2
-    const y = game.height - 120
-    for (let i = 0; i < player.bagSlots; i++) {
-        let x = startPosX + i * (slotsize + margin)
-
-        setColor(colors.BagSlotsColor)
-        canvas.fillRect(x, y, slotsize, slotsize)
-
-        canvas.strokeStyle = "rgb(35, 35, 35)"
-        canvas.lineWidth = 2
-        canvas.strokeRect(x,y, slotsize, slotsize)
-
-        if (player.bag[i]) {
-            canvas.fillStyle = "white"; 
-            canvas.font = "16px Arial";
-            canvas.textAlign = "center";
-            canvas.textBaseline = "middle";
-            canvas.fillText(player.bag[i], x + slotsize / 2, y + slotsize / 2);
-        }
-
-    }
-};
-
-
-document.addEventListener("keydown", (event) => {
-  keys[event.key] = true;
-});
-document.addEventListener("keyup", (event) => {
-  keys[event.key] = false;
+startButton.addEventListener("click",() => {
+    main()
 });
 
-function getRandomInt(min, max) {
-  const minCeiled = Math.ceil(min);
-  const maxFloored = Math.floor(max);
-  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // The maximum is inclusive and the minimum is inclusive
-}
+Array.from(li).forEach(element => {
+    element.addEventListener("click",() => {
+        let attribute = element.attributes["data"].value
+        let price = Shop[attribute][Shop.player[attribute]].price
+
+        if (price <= player.money) {
+            player.money -= price
+            Shop.player[attribute]++;
+            shopRender()
+            switch (attribute) {
+                case "pickaxe":
+                    console.log("Upgraded pickaxe!");
+                    
+                    break;
+            
+                default:
+                    break;
+            }
+        }
+    }); 
+});
