@@ -308,11 +308,15 @@ const renderWorld = () => {
             } else {
                 setColor(colors[block.type])
             }
-            canvas.fillRect(
-                (x - startX) * TILE_SIZE,
-                (y - startY) * TILE_SIZE,
-                TILE_SIZE, TILE_SIZE
-            );
+            try {
+                canvas.fillRect(
+                    (x - startX) * TILE_SIZE,
+                    (y - startY) * TILE_SIZE,
+                    TILE_SIZE, TILE_SIZE
+                );
+            } catch (error) {
+                continue
+            }
         }
     }
 
