@@ -11,37 +11,79 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = false
+const DISABLE_DARKNESS = true
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
 game.width  = 1280;
 game.height = 800;
+var playing = false
 
 /* CONFIG AREA */
+var movementSpeed = 0.3;
+var diggingSpeed = 0.3;
 const colors = {
     0: "white",
     1: "rgb(75, 39, 22)",
     2: "rgb(69, 79, 89)",
     3: "orange",
     4: "green",
+    5: "rgba(10, 10, 10, 1)",
+
     13: "sienna",
     14: "saddlebrown",
     15: "maroon",
+
     23: "slategray",
     24: "darkgray",
+    25: "gray",
+
+    33: "rgba(48, 48, 48, 1)",
+    34: "rgba(38, 36, 36, 1)",
+    35: "rgba(20, 20, 20, 1)",
+
     102: "rgb(28, 28, 28)",
     103: "rgb(40, 39, 39)",
     104: "rgb(46, 44, 44)",
     105: "rgb(59, 56, 56)",
+
+    112: "rgb(150, 73, 18)",
+    113: "rgb(120, 61, 18)",
+    114: "rgb(90, 45, 14)",
+    115: "rgb(62, 30, 8)",
+
+    504: "rgb(227, 41, 103)",
+    505: "rgba(207, 30, 89, 1)",
+    506: "rgba(198, 29, 85, 1)",
+    507: "rgba(154, 30, 71, 1)",
+    508: "rgba(122, 19, 53, 1)",
+    509: "rgba(84, 13, 36, 1)",
+    510: "rgba(57, 8, 24, 1)",
+
+    514: "rgba(41, 227, 125, 1)",
+    515: "rgba(20, 205, 103, 1)",
+    516: "rgba(40, 176, 101, 1)",
+    517: "rgba(43, 148, 90, 1)",
+    518: "rgba(25, 113, 65, 1)",
+    519: "rgba(12, 75, 40, 1)",
+    520: "rgba(7, 51, 27, 1)",
+
+
+
     999: "rgba(9, 0, 37, 1)",
     BagSlotsColor: "rgba(26, 26, 26, 0.2)"
 }
 const rewards = {
-    "Coal": 1
+    "Coal": 1,
+    "Iron": 3,
+    "Shredstone": 7,
+    "Egodite": 15
 }
 const ores = {
     105: "Coal",
+    115: "Iron",
+    510: "Shredstone",
+    520: "Egodite",
 }
 const Shop = {
     pickaxe: {
@@ -50,35 +92,50 @@ const Shop = {
             p: "S týmto krompáčom môžeš vyťažiť KAMEŇ!",
             tier: "T2",
             price: 15
-        }
+        },
+        3: {
+            heading: "Železný Krompáč",
+            p: "S týmto krompáčom môžeš vyťažiť TMAVÝ KAMEŇ!",
+            tier: "T3",
+            price: 40
+        },
+        4: null,
     },
     bag: {
         2: {
             heading: "Malý batoh",
             p: "Vedieť niesť iba 3 kamene je celkom otravné nie? Nos 4!",
             tier: "T2",
-            price: 13
+            price: 10
         },
         3: {
             heading: "Stredný batoh",
             p: "S týmto batohom budeš môcť odniesť až 5 kameňov",
             tier: "T3",
-            price: 30
+            price: 19
         },
+        4: {
+            heading: "Jakubova Gym Taška",
+            p: "Do môjho batohu sa zmestí aj 6 kameňov!",
+            tier: "T4",
+            price: 35
+        },
+        5: null
     },
     lamp: {
         2: {
             heading: "Stará sviečka",
             p: "S touto premium sviečkou by si mal vidieť lepšie v tých baniach",
             tier: "T2",
-            price: 25
+            price: 15
         },
-        2: {
+        3: {
             heading: "Ultra Lumen 3000",
             p: "S touto baterkou určite nájdeš aj skrytý JAKUBOV KAMEŇ... nikomu o ňom nehovor",
             tier: "T3",
             price: 50
         },
+        4: null
     },
     swiftPickaxe: {
         2: {
@@ -86,7 +143,8 @@ const Shop = {
             p: "Toto špeciálne vylepšenie zrýchli tvoj krompáč o 33.5%      <- číslo som si vymyslel",
             tier: "",
             price: 30
-        }
+        },
+        3: null
     },
     cardio: {
         2: {
@@ -94,7 +152,8 @@ const Shop = {
             p: "Konečne si prestal skipovať cardio v gyme a oplatilo sa! + 5 reputácia a zrýchelný pohyb!",
             tier: "",
             price: 50
-        }
+        },
+        3: null
     },
     player: {
         pickaxe: 2,
@@ -107,13 +166,15 @@ const Shop = {
 var player = {
     pos: {
         x: 39,
-        y: 5
+        y: 40
     },
     bag: [],
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0
+    money: 990,
+    cardio: false,
+    swiftPickaxe: false
 }
 /* CONFIG AREA */
 
@@ -128,9 +189,9 @@ var keys = {}
 const main = () => {
     startButton.innerHTML = "Back to game";
     document.getElementsByTagName("main")[0].style.display = "none";
-    game.requestFullscreen();
     generateWorld();
     surfaceDarkness();
+    shopRender()
 
     // Hiding shop
     ShopElement.style.display = "none";
@@ -161,7 +222,8 @@ const main = () => {
         renderWorld()
         renderGUI()
         setDarkness()
-        moveCooldown -= 0.033; // 33ms = 0.033s
+        movementSpeed -= 0.033; // 33ms = 0.033s
+        diggingSpeed -= 0.033;
     }, 33); // ~30 FPS
 
 }
@@ -177,14 +239,31 @@ const generateWorld = () => {
             if (y == MAX_Y - 1) {
                 world[y][x].type = 999
                 world[y][x].darkness = false
+            } else if (y > 60) {
+                world[y][x].type = 33
+                world[y][x].darkness = true
             } else if (y > 20) {
                 world[y][x].type = 23
+                if (y > 21) {
+                    let n = getRandomInt(1,28)
+                    if (n == 1) world[y][x].type = 112
+                    n = getRandomInt(1,190)
+                    if (n == 1) world[y][x].type = 514
+                }
+                if (y == 60) {
+                    world[y][x].type = getRandomInt(1,4) == 1 ? 23 : 33
+                }
                 world[y][x].darkness = true
             } else if (y > 5) {
                 world[y][x].type = 13
                 if (y > 7) {
-                    let n = getRandomInt(1,22)
+                    let n = getRandomInt(1,20)
                     if (n == 1) world[y][x].type = 102
+                    n = getRandomInt(1,95)
+                    if (n == 1) world[y][x].type = 504
+                }
+                if (y == 20) {
+                    world[y][x].type = getRandomInt(1,4) == 1 ? 13 : 23
                 }
                 world[y][x].darkness = true
             } else {
@@ -240,53 +319,66 @@ const renderWorld = () => {
 };
 
 const updatePlayer = () => {    
-    if (moveCooldown > 0) return
-    
+    let moved = false
+    let dug = false
+
     if (keys["w"]) {
-        if (world[player.pos.y - 1][player.pos.x].type < 11) {
+        if (world[player.pos.y - 1][player.pos.x].type < 11 && movementSpeed < 0) {
             player.pos.y--;
+            moved = true
         }
     }
     if (keys["a"]) {
-        if (world[player.pos.y][player.pos.x - 1].type < 11) {
+        if (world[player.pos.y][player.pos.x - 1].type < 11 && movementSpeed < 0) {
             player.pos.x--;
-        } else if (world[player.pos.y + 1][player.pos.x].type > 12) {
+            moved = true
+        } else if (world[player.pos.y + 1][player.pos.x].type > 12 && diggingSpeed < 0) {
             dig(player.pos.x - 1, player.pos.y)
+            dug = true
         }
     }
     if (keys["s"]) {
-        if (world[player.pos.y + 1][player.pos.x].type < 11) {
+        if (world[player.pos.y + 1][player.pos.x].type < 11 && movementSpeed < 0) {
             player.pos.y++;
-        } else {
+            moved = true
+        } else if (diggingSpeed < 0){
             dig(player.pos.x, player.pos.y + 1);
+            dug = true
         }
     }
     if (keys["d"]) {
-        if (world[player.pos.y][player.pos.x + 1].type < 11) {
+        if (world[player.pos.y][player.pos.x + 1].type < 11 && movementSpeed < 0) {
             player.pos.x++;
-        } else if (world[player.pos.y + 1][player.pos.x].type > 12){
+            moved = true
+        } else if (world[player.pos.y + 1][player.pos.x].type > 12 && diggingSpeed < 0){
             dig(player.pos.x + 1, player.pos.y);
+            dug = true
         }
     }
-    
+    if (moved) {
+        movementSpeed = player.cardio ? 0.22 : 0.3
+    }
+    if (dug) {
+        diggingSpeed = player.swiftPickaxe ? 0.22 : 0.3
+    }
     if (keys["q"]) { // Selling
         if (world[player.pos.y][player.pos.x].type != 3) return
         
         for (let i = 0; i < player.bagSlots; i++) {
             if (!!player.bag[i]) {
                 player.money += parseInt(rewards[player.bag[i]]);
-                console.log(player.money);
             }
         }
         player.bag = []
     }
-    if (keys["e"]) { // Opening shop
-        if (world[player.pos.y][player.pos.x].type != 4) return
 
-        game.exitFullscreen()
+    if (world[player.pos.y][player.pos.x].type == 4) {
+        shopRender()
         ShopElement.style.display = "flex"
+    } else {
+        ShopElement.style.display = "none"
     }
-    moveCooldown = 0.3;
+
 };
 
 const setDarkness = () => {
@@ -318,7 +410,7 @@ const dig = (x,y) => {
         world[y][x].type++;
     } 
     
-    if (target % 10 == 5) {
+    if (target % 10 == 5 && target < 499 || target > 500 && target % 10 == 0) {
         if (target > 100 && target < 900 && !(player.bag.length > player.bagSlots - 1)) player.bag.push(ores[target])
             
         if (y < 21) {
@@ -326,6 +418,9 @@ const dig = (x,y) => {
         }
         if (y >= 21) {
             world[y][x].type = 2
+        }
+        if (y >= 61) {
+            world[y][x].type = 5
         }
     }
 };
@@ -373,15 +468,13 @@ const shopRender = () => {
         let attribute = i.attributes["data"].value
         let data = Shop[attribute][Shop.player[attribute]]
         
-        
         left.children[0].innerHTML = data.heading
         left.children[1].innerHTML = data.p
         left.children[2].innerHTML = data.tier
-        i.children[1].innerHTML = data.price + "$"
+        i.children[1].innerHTML = data.price == "MAX" ? "MAX" : data.price + "$"
         
     }
 };
-shopRender()
 
 document.addEventListener("keydown", (event) => {
     keys[event.key] = true;
@@ -418,25 +511,47 @@ const setColor = (color) => {
     canvas.fillStyle = color
 };
 startButton.addEventListener("click",() => {
-    main()
+    if (playing != true) {
+        main()
+        playing = true
+    }
+    game.requestFullscreen();
 });
 
 Array.from(li).forEach(element => {
     element.addEventListener("click",() => {
         let attribute = element.attributes["data"].value
         let price = Shop[attribute][Shop.player[attribute]].price
-
+        
         if (price <= player.money) {
             player.money -= price
-            Shop.player[attribute]++;
+            
+            if (Shop[attribute][Shop.player[attribute] + 1] == null) {
+                Shop[attribute][Shop.player[attribute]].price = "MAX"
+            } else {
+                Shop.player[attribute]++;
+            }
+            console.log(Shop);
             shopRender()
             switch (attribute) {
                 case "pickaxe":
-                    console.log("Upgraded pickaxe!");
-                    
+                    player.pickStrength += 10;
                     break;
-            
-                default:
+
+                case "bag":
+                    player.bagSlots++;
+                    break;
+
+                case "lamp":
+                    player.lamp++;
+                    break;
+
+                case "swiftPickaxe":
+                    player.swiftPickaxe = true;
+                    break;
+
+                case "cardio":
+                    player.cardio = true;
                     break;
             }
         }

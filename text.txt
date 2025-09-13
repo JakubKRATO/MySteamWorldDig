@@ -9,27 +9,51 @@
 2 STONE WALL rgb(69, 79, 89)
 3 SELL ZONE orange
 4 SHOP ZONE green
+5 DARK STONE WALL rgba(10, 10, 10, 1)
+
 13 DIRT sienna
-14 HARMED DIRT saddlebrown
-15 BROKEN DIRT maroon
+14 saddlebrown
+15 maroon
 
 23 STONE slategray
-24 HARMED STONE darkgray
-25 BROKEN STONE gray
+24 darkgray
+25 gray
 
+33 DARK STONE rgba(48, 48, 48, 1)
+34  rgba(38, 36, 36, 1)
+35  rgba(20, 20, 20, 1)
 999 BEDROCK
 
 
 ## ORES ##
 
 102 COAL rgb(28, 28, 28)
-103 HARMED COAL rgb(40, 39, 39)
-104 DAMAGED COAL rgb(46, 44, 44)
-105 BROKEN COAL rgb(59, 56, 56)
+103 rgb(40, 39, 39)
+104 rgb(46, 44, 44)
+105 rgb(59, 56, 56)
+
+112 IRON rgb(150, 73, 18)
+113 rgb(120, 61, 18)
+114 rgb(90, 45, 14)
+115 rgb(62, 30, 8)
+
+
+504 Shredstone rgb(227, 41, 103)
+505 rgba(207, 30, 89, 1)
+506 rgba(198, 29, 85, 1)
+507 rgba(154, 30, 71, 1)
+508 rgba(122, 19, 53, 1)
+509 rgba(84, 13, 36, 1)
+510 rgba(57, 8, 24, 1)
+
+514 Egodite rgba(41, 227, 125, 1)
+515 rgba(20, 205, 103, 1)
+516 rgba(40, 176, 101, 1)
+517 rgba(43, 148, 90, 1)
+518 rgba(25, 113, 65, 1)
+519 rgba(12, 75, 40, 1)
+520 rgba(7, 51, 27, 1)
 
 
 TODO:
-darkness
-ores
-shop
 worldgen
