@@ -573,3 +573,4 @@ Array.from(li).forEach(element => {
         }
     }); 
 });
+shopRender()
