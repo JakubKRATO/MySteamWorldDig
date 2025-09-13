@@ -11,7 +11,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = true
+const DISABLE_DARKNESS = false
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -97,7 +97,7 @@ const Shop = {
             heading: "Železný Krompáč",
             p: "S týmto krompáčom môžeš vyťažiť TMAVÝ KAMEŇ!",
             tier: "T3",
-            price: 40
+            price: 65
         },
         4: null,
     },
@@ -166,13 +166,13 @@ const Shop = {
 var player = {
     pos: {
         x: 39,
-        y: 40
+        y: 5
     },
     bag: [],
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 990,
+    money: 0,
     cardio: false,
     swiftPickaxe: false
 }
@@ -241,14 +241,20 @@ const generateWorld = () => {
                 world[y][x].darkness = false
             } else if (y > 60) {
                 world[y][x].type = 33
+                if (y > 62) {
+                    let n = getRandomInt(1,30)
+                    world[y][x].type = n == 1 ? 504 : 33
+                }
                 world[y][x].darkness = true
             } else if (y > 20) {
                 world[y][x].type = 23
                 if (y > 21) {
                     let n = getRandomInt(1,28)
                     if (n == 1) world[y][x].type = 112
-                    n = getRandomInt(1,190)
-                    if (n == 1) world[y][x].type = 514
+                    if (y > 26) {
+                        n = getRandomInt(1,190)
+                        if (n == 1) world[y][x].type = 514
+                    }
                 }
                 if (y == 60) {
                     world[y][x].type = getRandomInt(1,4) == 1 ? 23 : 33
@@ -259,8 +265,10 @@ const generateWorld = () => {
                 if (y > 7) {
                     let n = getRandomInt(1,20)
                     if (n == 1) world[y][x].type = 102
-                    n = getRandomInt(1,95)
-                    if (n == 1) world[y][x].type = 504
+                    if (y > 9) {
+                        n = getRandomInt(1,95)
+                        if (n == 1) world[y][x].type = 504
+                    }
                 }
                 if (y == 20) {
                     world[y][x].type = getRandomInt(1,4) == 1 ? 13 : 23
