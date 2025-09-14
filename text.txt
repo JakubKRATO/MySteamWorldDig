@@ -10,20 +10,19 @@
 3 SELL ZONE orange
 4 SHOP ZONE green
 5 DARK STONE WALL rgba(10, 10, 10, 1)
+6 DOOR TILE rgb(78, 95, 210)
 
-13 DIRT sienna
-14 saddlebrown
-15 maroon
+14 DIRT sienna
+15 saddlebrown
 
 23 STONE slategray
 24 darkgray
 25 gray
 
-33 DARK STONE rgba(48, 48, 48, 1)
+32 DARK STONE rgba(63, 63, 63, 1)
+33  rgba(48, 48, 48, 1)
 34  rgba(38, 36, 36, 1)
 35  rgba(20, 20, 20, 1)
-999 BEDROCK
-
 
 ## ORES ##
 
@@ -55,5 +54,6 @@
 520 rgba(7, 51, 27, 1)
 
 
+999 BEDROCK
+
 TODO:
-worldgen

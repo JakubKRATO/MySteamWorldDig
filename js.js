@@ -11,7 +11,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = false
+const DISABLE_DARKNESS = true
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -29,15 +29,16 @@ const colors = {
     3: "orange",
     4: "green",
     5: "rgba(10, 10, 10, 1)",
+    6: "rgb(78, 95, 210)",
 
-    13: "sienna",
-    14: "saddlebrown",
-    15: "maroon",
+    14: "sienna",
+    15: "saddlebrown",
 
     23: "slategray",
     24: "darkgray",
     25: "gray",
 
+    32: "rgba(63, 63, 63, 1)",
     33: "rgba(48, 48, 48, 1)",
     34: "rgba(38, 36, 36, 1)",
     35: "rgba(20, 20, 20, 1)",
@@ -76,8 +77,8 @@ const colors = {
 const rewards = {
     "Coal": 1,
     "Iron": 3,
-    "Shredstone": 7,
-    "Egodite": 15
+    "Shredstone": 5,
+    "Egodite": 11
 }
 const ores = {
     105: "Coal",
@@ -116,11 +117,23 @@ const Shop = {
         },
         4: {
             heading: "Jakubova Gym Taška",
-            p: "Do môjho batohu sa zmestí aj 6 kameňov!",
+            p: "Do môjej gym tašky sa zmestí aj 6 kameňov!",
             tier: "T4",
             price: 35
         },
-        5: null
+        5: {
+            heading: "Jakubova školská Taška",
+            p: "Do môjho batohu sa zmestí takmer všetko...",
+            tier: "T5",
+            price: 50
+        },
+        6: {
+            heading: "Midasov Dotyk",
+            p: "Všetko čo predáš má + 3 hodnotu!",
+            tier: "T??",
+            price: 80
+        },
+        7: null
     },
     lamp: {
         2: {
@@ -141,19 +154,31 @@ const Shop = {
         2: {
             heading: "Rýchly krompáč",
             p: "Toto špeciálne vylepšenie zrýchli tvoj krompáč o 33.5%      <- číslo som si vymyslel",
-            tier: "",
+            tier: "T2",
             price: 30
         },
-        3: null
+        3: {
+            heading: "Horiaci krompáč",
+            p: "Tvoj krompáč ničí kameňe ako nôž cez maslo",
+            tier: "T3",
+            price: 125
+        },
+        4: null
     },
     cardio: {
         2: {
             heading: "Cardio",
             p: "Konečne si prestal skipovať cardio v gyme a oplatilo sa! + 5 reputácia a zrýchelný pohyb!",
-            tier: "",
+            tier: "T2",
             price: 50
         },
-        3: null
+        3: {
+            heading: "Útek z kardio zóny",
+            p: "Odteraz utekáš tak rýchlo ako Jakub z kardio zóny",
+            tier: "T3",
+            price: 90
+        },
+        4: null
     },
     player: {
         pickaxe: 2,
@@ -172,9 +197,10 @@ var player = {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0,
-    cardio: false,
-    swiftPickaxe: false
+    money: 999,
+    cardio: 1,
+    swiftPickaxe: 1,
+    midas: 0
 }
 /* CONFIG AREA */
 
@@ -215,7 +241,11 @@ const main = () => {
     world[6][35].type = 999;
     world[6][34].type = 999;
 
-
+    
+    let f = getRandomInt(10,70)
+    let n = getRandomInt(60, 63)
+    generateDoor(f, n, 0, 0, true)
+    
     // Main game loop runs here (30 FPS)
     setInterval(() => {
         updatePlayer()
@@ -240,10 +270,10 @@ const generateWorld = () => {
                 world[y][x].type = 999
                 world[y][x].darkness = false
             } else if (y > 60) {
-                world[y][x].type = 33
+                world[y][x].type = 32
                 if (y > 62) {
                     let n = getRandomInt(1,30)
-                    world[y][x].type = n == 1 ? 504 : 33
+                    world[y][x].type = n == 1 ? 504 : 32
                 }
                 world[y][x].darkness = true
             } else if (y > 20) {
@@ -257,11 +287,11 @@ const generateWorld = () => {
                     }
                 }
                 if (y == 60) {
-                    world[y][x].type = getRandomInt(1,4) == 1 ? 23 : 33
+                    world[y][x].type = getRandomInt(1,4) == 1 ? 23 : 32
                 }
                 world[y][x].darkness = true
             } else if (y > 5) {
-                world[y][x].type = 13
+                world[y][x].type = 14
                 if (y > 7) {
                     let n = getRandomInt(1,20)
                     if (n == 1) world[y][x].type = 102
@@ -271,7 +301,7 @@ const generateWorld = () => {
                     }
                 }
                 if (y == 20) {
-                    world[y][x].type = getRandomInt(1,4) == 1 ? 13 : 23
+                    world[y][x].type = getRandomInt(1,4) == 1 ? 14 : 23
                 }
                 world[y][x].darkness = true
             } else {
@@ -303,7 +333,7 @@ const renderWorld = () => {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
             block = world[y][x];
-            if (block.darkness && block.type != 0 && !DISABLE_DARKNESS) {
+            if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness) {
                 setColor("black")
             } else {
                 setColor(colors[block.type])
@@ -367,18 +397,28 @@ const updatePlayer = () => {
             dug = true
         }
     }
+    if (keys["Enter"] && movementSpeed < 0) {
+        let block = world[player.pos.y][player.pos.x]
+
+        if (block.type != 6) return
+        moved = true
+
+        player.pos.x = block.teleport.x
+        player.pos.y = block.teleport.y
+        
+    }
     if (moved) {
-        movementSpeed = player.cardio ? 0.22 : 0.3
+        movementSpeed = player.cardio == 3 ? 0.15 : player.cardio == 2 ? 0.22 : 0.3
     }
     if (dug) {
-        diggingSpeed = player.swiftPickaxe ? 0.22 : 0.3
+        diggingSpeed = player.swiftPickaxe == 3 ? 0.15 : player.swiftPickaxe == 2 ? 0.22 : 0.3
     }
     if (keys["q"]) { // Selling
         if (world[player.pos.y][player.pos.x].type != 3) return
         
         for (let i = 0; i < player.bagSlots; i++) {
             if (!!player.bag[i]) {
-                player.money += parseInt(rewards[player.bag[i]]);
+                player.money += parseInt(rewards[player.bag[i]] + player.midas);
             }
         }
         player.bag = []
@@ -390,7 +430,6 @@ const updatePlayer = () => {
     } else {
         ShopElement.style.display = "none"
     }
-
 };
 
 const setDarkness = () => {
@@ -412,6 +451,7 @@ const setDarkness = () => {
         for (let x of blocks) {
             try {
                 world[player.pos.y + y][player.pos.x + x].darkness = false
+                world[player.pos.y + y][player.pos.x + x].doorDarkness = false
             } catch (error) {
                 continue
             }
@@ -477,7 +517,27 @@ const renderGUI = () => {
     canvas.textBaseline = "middle";
     canvas.fillText(player.money + "$", 40, 32);
 };
-
+const generateDoor = (x,y,posX,posY, up) => {
+    let block = world[y][x].type
+    for (let n of [3,2,1,0]) {
+        for (let m of [3,2,1,0]) {
+            world[y - n][x + m].type = block == 32 ? 5 : block == 23 ? 2 : block == 14 ? 1 : 0
+            world[y - n][x + m].doorDarkness = true
+        }
+    }
+    for (let n of [0,1,2,3]) {
+        world[y][x + n].type = 999
+    }
+    for (let n of [1,2]) {
+        for (let m of [1,2]) {
+            world[y - n][x + m].type = 6
+            if (up) {
+                world[y - n][x + m].teleport = {x: 45, y: 5}
+            } else world[y - n][x + m].teleport = {x: posX, y: posY}
+            
+        }
+    }
+};
 const shopRender = () => {
     for (let i of li) {
         let left = i.children[0]
@@ -544,6 +604,7 @@ Array.from(li).forEach(element => {
             
             if (Shop[attribute][Shop.player[attribute] + 1] == null) {
                 Shop[attribute][Shop.player[attribute]].price = "MAX"
+                element.style.backgroundColor = "gold"
             } else {
                 Shop.player[attribute]++;
             }
@@ -555,7 +616,11 @@ Array.from(li).forEach(element => {
                     break;
 
                 case "bag":
-                    player.bagSlots++;
+                    if (Shop.player["bag"] == 6) {
+                        player.midas = 3
+                    } else {
+                        player.bagSlots++;
+                    }
                     break;
 
                 case "lamp":
@@ -563,11 +628,11 @@ Array.from(li).forEach(element => {
                     break;
 
                 case "swiftPickaxe":
-                    player.swiftPickaxe = true;
+                    player.swiftPickaxe++;
                     break;
 
                 case "cardio":
-                    player.cardio = true;
+                    player.cardio++;
                     break;
             }
         }
