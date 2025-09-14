@@ -8,7 +8,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = false
+const DISABLE_DARKNESS = true
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
