@@ -11,7 +11,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = true
+const DISABLE_DARKNESS = false
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -161,7 +161,7 @@ const Shop = {
             heading: "Horiaci krompáč",
             p: "Tvoj krompáč ničí kameňe ako nôž cez maslo",
             tier: "T3",
-            price: 125
+            price: 90
         },
         4: null
     },
@@ -197,7 +197,7 @@ var player = {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 999,
+    money: 0,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0
@@ -240,7 +240,6 @@ const main = () => {
     world[6][36].type = 999;
     world[6][35].type = 999;
     world[6][34].type = 999;
-
     
     let f = getRandomInt(10,70)
     let n = getRandomInt(60, 63)
@@ -401,11 +400,14 @@ const updatePlayer = () => {
         let block = world[player.pos.y][player.pos.x]
 
         if (block.type != 6) return
-        moved = true
-
+        let oldX = player.pos.x
+        let oldY = player.pos.y
         player.pos.x = block.teleport.x
         player.pos.y = block.teleport.y
-        
+        if (player.pos.y < 7) {
+            generateDoor(47, 6, oldX, oldY)
+        }
+        moved = true
     }
     if (moved) {
         movementSpeed = player.cardio == 3 ? 0.15 : player.cardio == 2 ? 0.22 : 0.3
@@ -423,7 +425,7 @@ const updatePlayer = () => {
         }
         player.bag = []
     }
-
+    
     if (world[player.pos.y][player.pos.x].type == 4) {
         shopRender()
         ShopElement.style.display = "flex"
@@ -532,7 +534,7 @@ const generateDoor = (x,y,posX,posY, up) => {
         for (let m of [1,2]) {
             world[y - n][x + m].type = 6
             if (up) {
-                world[y - n][x + m].teleport = {x: 45, y: 5}
+                world[y - n][x + m].teleport = {x: 47, y: 5}
             } else world[y - n][x + m].teleport = {x: posX, y: posY}
             
         }
