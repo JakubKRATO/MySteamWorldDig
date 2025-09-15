@@ -720,7 +720,6 @@ Array.from(li).forEach(element => {
                 await end.play()
                 alert("Gratulujem! Získal si všetko. Čo teraz?")
             }
-            
         }
     }); 
 });
