@@ -2,7 +2,10 @@ const startButton = document.getElementsByTagName("button")[0];
 const game = document.getElementsByTagName("canvas")[0];
 const canvas = game.getContext("2d");
 
-const MAX_X = 120;
+const ShopElement = document.getElementsByClassName("shop")[0];
+const li = ShopElement.getElementsByTagName("li")
+
+const MAX_X = 80;
 const MAX_Y = 250;
 
 const DISPLAY_X = 40;
@@ -14,65 +17,258 @@ const TILE_SIZE = 32; //32x32
 const res = "1280x800";
 game.width  = 1280;
 game.height = 800;
+var playing = false
 
-var world = [];
-var colors = {
+/* CONFIG AREA */
+var movementSpeed = 0.3;
+var diggingSpeed = 0.3;
+const colors = {
     0: "white",
     1: "rgb(75, 39, 22)",
     2: "rgb(69, 79, 89)",
     3: "orange",
-    13: "sienna",
-    14: "saddlebrown",
-    15: "maroon",
+    4: "green",
+    5: "rgba(75, 75, 75, 1)",
+    6: "rgb(78, 95, 210)",
+
+    14: "sienna",
+    15: "saddlebrown",
+
     23: "slategray",
     24: "darkgray",
+    25: "gray",
+
+    32: "rgba(101, 101, 101, 1)",
+    33: "rgba(85, 85, 85, 1)",
+    34: "rgba(71, 71, 71, 1)",
+    35: "rgba(61, 61, 61, 1)",
+
     102: "rgb(28, 28, 28)",
     103: "rgb(40, 39, 39)",
     104: "rgb(46, 44, 44)",
     105: "rgb(59, 56, 56)",
-    999: "red",
+
+    112: "rgb(150, 73, 18)",
+    113: "rgb(120, 61, 18)",
+    114: "rgb(90, 45, 14)",
+    115: "rgb(62, 30, 8)",
+
+    504: "rgb(227, 41, 103)",
+    505: "rgba(207, 30, 89, 1)",
+    506: "rgba(198, 29, 85, 1)",
+    507: "rgba(154, 30, 71, 1)",
+    508: "rgba(122, 19, 53, 1)",
+    509: "rgba(84, 13, 36, 1)",
+    510: "rgba(57, 8, 24, 1)",
+
+    514: "rgba(41, 227, 125, 1)",
+    515: "rgba(20, 205, 103, 1)",
+    516: "rgba(40, 176, 101, 1)",
+    517: "rgba(43, 148, 90, 1)",
+    518: "rgba(25, 113, 65, 1)",
+    519: "rgba(12, 75, 40, 1)",
+    520: "rgba(7, 51, 27, 1)",
+
+
+
+    999: "rgba(9, 0, 37, 1)",
     BagSlotsColor: "rgba(26, 26, 26, 0.2)"
 }
 const rewards = {
-    "Coal": 1
+    "Coal": 1,
+    "Iron": 3,
+    "Shredstone": 5,
+    "Egodite": 11
 }
+const ores = {
+    105: "Coal",
+    115: "Iron",
+    510: "Shredstone",
+    520: "Egodite",
+}
+const Shop = JSON.parse(localStorage.getItem("Shop")) || {
+    pickaxe: {
+        2: {
+            heading: "Kamený Krompáč",
+            p: "S týmto krompáčom môžeš vyťažiť KAMEŇ!",
+            tier: "T2",
+            price: 15
+        },
+        3: {
+            heading: "Železný Krompáč",
+            p: "S týmto krompáčom môžeš vyťažiť TMAVÝ KAMEŇ!",
+            tier: "T3",
+            price: 65
+        },
+        4: null,
+    },
+    bag: {
+        2: {
+            heading: "Malý batoh",
+            p: "Vedieť niesť iba 3 kamene je celkom otravné nie? Nos 4!",
+            tier: "T2",
+            price: 10
+        },
+        3: {
+            heading: "Stredný batoh",
+            p: "S týmto batohom budeš môcť odniesť až 5 kameňov",
+            tier: "T3",
+            price: 19
+        },
+        4: {
+            heading: "Jakubova Gym Taška",
+            p: "Do môjej gym tašky sa zmestí aj 6 kameňov!",
+            tier: "T4",
+            price: 35
+        },
+        5: {
+            heading: "Jakubova školská Taška",
+            p: "Do môjho batohu sa zmestí takmer všetko...",
+            tier: "T5",
+            price: 50
+        },
+        6: {
+            heading: "Midasov Dotyk",
+            p: "Všetko čo predáš má + 3 hodnotu!",
+            tier: "T??",
+            price: 80
+        },
+        7: null
+    },
+    lamp: {
+        2: {
+            heading: "Stará sviečka",
+            p: "S touto premium sviečkou by si mal vidieť lepšie v tých baniach",
+            tier: "T2",
+            price: 15
+        },
+        3: {
+            heading: "Ultra Lumen 3000",
+            p: "S touto baterkou určite nájdeš aj skrytý JAKUBOV KAMEŇ... nikomu o ňom nehovor",
+            tier: "T3",
+            price: 50
+        },
+        4: null
+    },
+    swiftPickaxe: {
+        2: {
+            heading: "Rýchly krompáč",
+            p: "Toto špeciálne vylepšenie zrýchli tvoj krompáč o 33.5%      <- číslo som si vymyslel",
+            tier: "T2",
+            price: 30
+        },
+        3: {
+            heading: "Horiaci krompáč",
+            p: "Tvoj krompáč ničí kameňe ako nôž cez maslo",
+            tier: "T3",
+            price: 90
+        },
+        4: null
+    },
+    cardio: {
+        2: {
+            heading: "Cardio",
+            p: "Konečne si prestal skipovať cardio v gyme a oplatilo sa! + 5 reputácia a zrýchelný pohyb!",
+            tier: "T2",
+            price: 50
+        },
+        3: {
+            heading: "Útek z kardio zóny",
+            p: "Odteraz utekáš tak rýchlo ako Jakub z kardio zóny",
+            tier: "T3",
+            price: 90
+        },
+        4: null
+    },
+    diagonal: {
+        2: {
+            heading: "Diagonálny Teleport",
+            p: "Naučil si sa novú techniku teleportovania!",
+            tier: "T??",
+            price: 30
+        },
+        3: null
+    },
+    player: {
+        pickaxe: 2,
+        bag: 2,
+        lamp: 2,
+        swiftPickaxe: 2,
+        cardio: 2,
+        diagonal: 2
+    }
+}
+var player = JSON.parse(localStorage.getItem("player")) || {
+    pos: {
+        x: 39,
+        y: 5
+    },
+    bag: [],
+    bagSlots: 3,
+    lamp: 1,
+    pickStrength: 15,
+    money: 0,
+    cardio: 1,
+    swiftPickaxe: 1,
+    midas: 0,
+    diagonal: false
+}
+/* CONFIG AREA */
+
+var world = [];
 
 var cameraX = 0;
 var cameraY = 0;
 var moveCooldown = 0.5;
 var keys = {}
 
-var player = {
-    pos: {
-        x: 60,
-        y: 5
-    },
-    bag: [],
-    bagSlots: 5,
-    money: 0
-}
 
 const main = () => {
-    startButton.style.display = "none";
-    game.requestFullscreen();
-    generateWorld();
-    setDarkness();
+    startButton.innerHTML = "Back to game";
+    document.getElementsByTagName("main")[0].style.display = "none";
+    if (!localStorage.getItem("world")) {
+        console.log("Generating new world...")
+        generateWorld();
+    } else {
+        world = JSON.parse(localStorage.getItem("world"))
+    }
+    surfaceDarkness();
+    shopRender()
 
+    // Hiding shop
+    ShopElement.style.display = "none";
+    
     // Setup SELL ZONES
-    world[5][62].type = 3;
-    world[5][63].type = 3;
-    world[4][62].type = 3;
-    world[4][63].type = 3;
-    world[6][62].type = 999;
-    world[6][63].type = 999;
-
+    world[5][42].type = 3;
+    world[5][43].type = 3;
+    world[4][42].type = 3;
+    world[4][43].type = 3;
+    world[6][41].type = 999;
+    world[6][42].type = 999;
+    world[6][43].type = 999;
+    world[6][44].type = 999;
+    
+    world[5][36].type = 4;
+    world[5][35].type = 4;
+    world[4][36].type = 4;
+    world[4][35].type = 4;
+    world[6][37].type = 999;
+    world[6][36].type = 999;
+    world[6][35].type = 999;
+    world[6][34].type = 999;
+    
+    let f = getRandomInt(10,70)
+    let n = getRandomInt(60, 63)
+    generateDoor(f, n, 0, 0, true)
+    
     // Main game loop runs here (30 FPS)
     setInterval(() => {
         updatePlayer()
         renderWorld()
-        setDarkness()
         renderGUI()
-        moveCooldown -= 0.033; // 33ms = 0.033s
+        setDarkness()
+        movementSpeed -= 0.033; // 33ms = 0.033s
+        diggingSpeed -= 0.033;
     }, 33); // ~30 FPS
 
 }
@@ -88,14 +284,39 @@ const generateWorld = () => {
             if (y == MAX_Y - 1) {
                 world[y][x].type = 999
                 world[y][x].darkness = false
+            } else if (y > 60) {
+                world[y][x].type = 32
+                if (y > 62) {
+                    let n = getRandomInt(1,30)
+                    world[y][x].type = n == 1 ? 504 : 32
+                }
+                world[y][x].darkness = true
             } else if (y > 20) {
                 world[y][x].type = 23
+                if (y > 21) {
+                    let n = getRandomInt(1,28)
+                    if (n == 1) world[y][x].type = 112
+                    if (y > 26) {
+                        n = getRandomInt(1,190)
+                        if (n == 1) world[y][x].type = 514
+                    }
+                }
+                if (y == 60) {
+                    world[y][x].type = getRandomInt(1,4) == 1 ? 23 : 32
+                }
                 world[y][x].darkness = true
             } else if (y > 5) {
-                world[y][x].type = 13
+                world[y][x].type = 14
                 if (y > 7) {
-                    let n = getRandomInt(1,22)
+                    let n = getRandomInt(1,20)
                     if (n == 1) world[y][x].type = 102
+                    if (y > 9) {
+                        n = getRandomInt(1,95)
+                        if (n == 1) world[y][x].type = 504
+                    }
+                }
+                if (y == 20) {
+                    world[y][x].type = getRandomInt(1,4) == 1 ? 14 : 23
                 }
                 world[y][x].darkness = true
             } else {
@@ -127,16 +348,20 @@ const renderWorld = () => {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
             block = world[y][x];
-            if (block.darkness && block.type != 0 && !DISABLE_DARKNESS) {
+            if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness) {
                 setColor("black")
             } else {
                 setColor(colors[block.type])
             }
-            canvas.fillRect(
-                (x - startX) * TILE_SIZE,
-                (y - startY) * TILE_SIZE,
-                TILE_SIZE, TILE_SIZE
-            );
+            try {
+                canvas.fillRect(
+                    (x - startX) * TILE_SIZE,
+                    (y - startY) * TILE_SIZE,
+                    TILE_SIZE, TILE_SIZE
+                );
+            } catch (error) {
+                continue
+            }
         }
     }
 
@@ -150,67 +375,258 @@ const renderWorld = () => {
 
 };
 
-const updatePlayer = () => {
-    if (moveCooldown > 0) return
-    world[player.pos.y + 1][player.pos.x - 1].darkness = false
-    world[player.pos.y + 1][player.pos.x + 1].darkness = false
-    world[player.pos.y - 1][player.pos.x + 1].darkness = false
-    world[player.pos.y - 1][player.pos.x - 1].darkness = false
-    
-    if (keys["w"]) {
-        if (world[player.pos.y - 1][player.pos.x].type < 11) {
-            player.pos.y--;
+const updatePlayer = () => {    
+    let moved = false
+    let dug = false
+
+    if (player.diagonal) {
+        if (keys["w"] && keys["a"]) {
+            if (world[player.pos.y - 1][player.pos.x - 1].type <= 10 && movementSpeed < 0) {
+                player.pos.x = player.pos.x - 1
+                player.pos.y = player.pos.y - 1
+                moved = true
+            }
         }
-    }
-    if (keys["a"]) {
-        if (world[player.pos.y][player.pos.x - 1].type < 11) {
-            player.pos.x--;
-        } else {
-            dig(player.pos.x - 1, player.pos.y)
+        if (keys["w"] && keys["d"]) {
+            if (world[player.pos.y - 1][player.pos.x + 1].type <= 10 && movementSpeed < 0) {
+                player.pos.x = player.pos.x + 1
+                player.pos.y = player.pos.y - 1
+                moved = true
+            }
         }
-    }
-    if (keys["s"]) {
-        if (world[player.pos.y + 1][player.pos.x].type < 11) {
-            player.pos.y++;
-        } else {
-            dig(player.pos.x, player.pos.y + 1);
+        if (keys["s"] && keys["a"]) {
+            if (world[player.pos.y + 1][player.pos.x - 1].type <= 10 && movementSpeed < 0) {
+                player.pos.x = player.pos.x - 1
+                player.pos.y = player.pos.y + 1
+                moved = true
+            }
         }
-    }
-    if (keys["d"]) {
-        if (world[player.pos.y][player.pos.x + 1].type < 11) {
-            player.pos.x++;
-        } else {
-            dig(player.pos.x + 1, player.pos.y);
+        if (keys["s"] && keys["d"]) {
+            if (world[player.pos.y + 1][player.pos.x + 1].type <= 10 && movementSpeed < 0) {
+                player.pos.x = player.pos.x + 1
+                player.pos.y = player.pos.y + 1
+                moved = true
+            }
         }
     }
 
+    if (!moved) {
+        if (keys["w"]) {
+            if (world[player.pos.y - 1][player.pos.x].type < 11 && movementSpeed < 0) {
+                player.pos.y--;
+                moved = true
+            }
+        }
+        if (keys["a"]) {
+            if (world[player.pos.y][player.pos.x - 1].type < 11 && movementSpeed < 0) {
+                player.pos.x--;
+                moved = true
+            } else if (world[player.pos.y + 1][player.pos.x].type > 12 && diggingSpeed < 0) {
+                dig(player.pos.x - 1, player.pos.y)
+                dug = true
+            }
+        }
+        if (keys["s"]) {
+            if (world[player.pos.y + 1][player.pos.x].type < 11 && movementSpeed < 0) {
+                player.pos.y++;
+                moved = true
+            } else if (diggingSpeed < 0){
+                dig(player.pos.x, player.pos.y + 1);
+                dug = true
+            }
+        }
+        if (keys["d"]) {
+            if (world[player.pos.y][player.pos.x + 1].type < 11 && movementSpeed < 0) {
+                player.pos.x++;
+                moved = true
+            } else if (world[player.pos.y + 1][player.pos.x].type > 12 && diggingSpeed < 0){
+                dig(player.pos.x + 1, player.pos.y);
+                dug = true
+            }
+        }
+    }
+    if (keys["Enter"] && movementSpeed < 0) {
+        let block = world[player.pos.y][player.pos.x]
+
+        if (block.type != 6) return
+        let oldX = player.pos.x
+        let oldY = player.pos.y
+        player.pos.x = block.teleport.x
+        player.pos.y = block.teleport.y
+        if (player.pos.y < 7) {
+            generateDoor(47, 6, oldX, oldY)
+        }
+        moved = true
+    }
+    if (moved) {
+        movementSpeed = player.cardio == 3 ? 0.16 : player.cardio == 2 ? 0.23 : 0.3
+    }
+    if (dug) {
+        diggingSpeed = player.swiftPickaxe == 3 ? 0.16 : player.swiftPickaxe == 2 ? 0.23 : 0.3
+    }
     if (keys["q"]) { // Selling
         if (world[player.pos.y][player.pos.x].type != 3) return
-
+        
         for (let i = 0; i < player.bagSlots; i++) {
             if (!!player.bag[i]) {
-                player.money += parseInt(rewards[player.bag[i]]);
-                console.log(player.money);
+                player.money += parseInt(rewards[player.bag[i]] + player.midas);
             }
         }
         player.bag = []
     }
-
-    moveCooldown = 0.3;
+    
+    if (world[player.pos.y][player.pos.x].type == 4) {
+        shopRender()
+        ShopElement.style.display = "flex"
+    } else {
+        ShopElement.style.display = "none"
+    }
 };
 
 const setDarkness = () => {
-    for (let y = 0; y < MAX_Y; y++) {
-        for (let x = 0; x < MAX_X; x++) {
+    let blocks;
+    switch (player.lamp) {
+        case 1:
+            blocks = [-1, 0, 1]
+            break
+        case 2:
+            blocks = [-2, -1, 0, 1, 2]
+            break
+        case 3:
+            blocks = [-3, -2, -1, 0, 1, 2, 3]
+            break
+
+    }
+
+    for (let y of blocks) {
+        for (let x of blocks) {
             try {
-                var blocksY = [world[y - 1][x].type, world[y - 2][x].type, world[y - 3][x].type]
-                var blocksX = [world[y][x - 1].type, world[y][x - 2].type, world[y][x + 1].type, world[y][x + 2].type]
+                world[player.pos.y + y][player.pos.x + x].darkness = false
+                world[player.pos.y + y][player.pos.x + x].doorDarkness = false
             } catch (error) {
                 continue
             }
+        }
+    }
+};
+
+const dig = (x,y) => {
+    renderGUI()
+    let target = world[y][x].type;
+    if ((target > 10 && !(target > 990) && !(target % 10 == 5) && player.pickStrength >= target) || target > 100 && target < 990) {
+        world[y][x].type++;
+    } 
+    
+    if (target % 10 == 5 && target < 499 || target > 500 && target % 10 == 0) {
+        if (target > 100 && target < 900 && !(player.bag.length > player.bagSlots - 1)) player.bag.push(ores[target])
             
-            for (let i = 0; i < 2; i++) {             
-                if (blocksY.includes(i) || blocksX.includes(i)) {
+        if (y < 21) {
+            world[y][x].type = 1
+        }
+        if (y >= 21) {
+            world[y][x].type = 2
+        }
+        if (y >= 61) {
+            world[y][x].type = 5
+        }
+    }
+};
+
+
+
+const renderGUI = () => {
+    const slotsize = 100
+    const margin = 20
+    
+    const totalWidth = player.bagSlots * slotsize + (player.bagSlots - 1) * margin
+    const startPosX = (game.width - totalWidth) / 2
+    const y = game.height - 120
+    for (let i = 0; i < player.bagSlots; i++) {
+        let x = startPosX + i * (slotsize + margin)
+        
+        setColor(colors.BagSlotsColor)
+        canvas.fillRect(x, y, slotsize, slotsize)
+        
+        canvas.strokeStyle = "rgb(35, 35, 35)"
+        canvas.lineWidth = 2
+        canvas.strokeRect(x,y, slotsize, slotsize)
+        
+        if (player.bag[i]) {
+            canvas.fillStyle = "white"; 
+            canvas.font = "16px Arial";
+            canvas.textAlign = "center";
+            canvas.textBaseline = "middle";
+            canvas.fillText(player.bag[i], x + slotsize / 2, y + slotsize / 2);
+        }
+    }
+    setColor("rgba(13, 13, 13, 1)")
+    canvas.fillRect(20, 20, 40, 20)
+    canvas.strokeRect(20, 20, 40, 20)
+    canvas.fillStyle = "white"; 
+    canvas.font = "16px Arial";
+    canvas.textAlign = "center";
+    canvas.textBaseline = "middle";
+    canvas.fillText(player.money + "$", 40, 32);
+};
+const generateDoor = (x,y,posX,posY, up) => {
+    for (let n of [3,2,1,0]) {
+        for (let m of [3,2,1,0]) {
+            let block = world[y - n][x + m].type
+            world[y - n][x + m].type = block == 32 ? 5 : block == 23 ? 2 : block == 14 ? 1 : 0
+            world[y - n][x + m].doorDarkness = block <= 10 ? false : true
+        }
+    }
+    for (let n of [0,1,2,3]) {
+        world[y][x + n].type = 999
+    }
+    for (let n of [1,2]) {
+        for (let m of [1,2]) {
+            world[y - n][x + m].type = 6
+            if (up) {
+                world[y - n][x + m].teleport = {x: 47, y: 5}
+            } else world[y - n][x + m].teleport = {x: posX, y: posY}
+            
+        }
+    }
+};
+const shopRender = () => {
+    for (let i of li) {
+        let left = i.children[0]
+        let attribute = i.attributes["data"].value
+        let data = Shop[attribute][Shop.player[attribute]]
+        
+        left.children[0].innerHTML = data.heading
+        left.children[1].innerHTML = data.p
+        left.children[2].innerHTML = data.tier
+        i.children[1].innerHTML = data.price == "MAX" ? "MAX" : data.price + "$"
+        
+    }
+};
+
+document.addEventListener("keydown", (event) => {
+    keys[event.key] = true;
+});
+document.addEventListener("keyup", (event) => {
+    keys[event.key] = false;
+});
+
+function getRandomInt(min, max) {
+    const minCeiled = Math.ceil(min);
+    const maxFloored = Math.floor(max);
+    return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // The maximum is inclusive and the minimum is inclusive
+}
+const surfaceDarkness = () => {
+    for (let y = 0; y < 10; y++) {
+        for (let x = 0; x < MAX_X; x++) {
+            let blocks
+            try {
+                blocks = [world[y - 1][x].type, world[y - 2][x].type, world[y - 3][x].type]
+            } catch (error) {
+                world[y][x].darkness = false
+                continue
+            }
+            for (let i = 0; i < 10; i++) {
+                if (blocks.includes(i)) {
                     world[y][x].darkness = false
                 }
             }
@@ -221,63 +637,80 @@ const setDarkness = () => {
 const setColor = (color) => {
     canvas.fillStyle = color
 };
-const dig = (x,y) => {
-    renderGUI()
-    let target = world[y][x].type;
-    if (target > 9 && !(target % 10 == 5)) {
-        world[y][x].type++;
-    } 
-
-    if (target % 10 == 5) {
-        if (target == 105 && !(player.bag.length > player.bagSlots - 1)) player.bag.push("Coal")
-
-        if (y < 21) {
-            world[y][x].type = 1
-        }
-        if (y >= 21) {
-            world[y][x].type = 2
-        }
+startButton.addEventListener("click",() => {
+    if (playing != true) {
+        main()
+        playing = true
     }
-};
-
-const renderGUI = () => {
-    const slotsize = 100
-    const margin = 20
-
-    const totalWidth = player.bagSlots * slotsize + (player.bagSlots - 1) * margin
-    const startPosX = (game.width - totalWidth) / 2
-    const y = game.height - 120
-    for (let i = 0; i < player.bagSlots; i++) {
-        let x = startPosX + i * (slotsize + margin)
-
-        setColor(colors.BagSlotsColor)
-        canvas.fillRect(x, y, slotsize, slotsize)
-
-        canvas.strokeStyle = "rgb(35, 35, 35)"
-        canvas.lineWidth = 2
-        canvas.strokeRect(x,y, slotsize, slotsize)
-
-        if (player.bag[i]) {
-            canvas.fillStyle = "white"; 
-            canvas.font = "16px Arial";
-            canvas.textAlign = "center";
-            canvas.textBaseline = "middle";
-            canvas.fillText(player.bag[i], x + slotsize / 2, y + slotsize / 2);
-        }
-
-    }
-};
-
-
-document.addEventListener("keydown", (event) => {
-  keys[event.key] = true;
-});
-document.addEventListener("keyup", (event) => {
-  keys[event.key] = false;
+    game.requestFullscreen();
 });
 
-function getRandomInt(min, max) {
-  const minCeiled = Math.ceil(min);
-  const maxFloored = Math.floor(max);
-  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // The maximum is inclusive and the minimum is inclusive
-}
+Array.from(li).forEach(element => {
+    element.addEventListener("click",() => {
+        let attribute = element.attributes["data"].value
+        let price = Shop[attribute][Shop.player[attribute]].price
+        
+        if (price <= player.money) {
+            player.money -= price
+            
+            if (Shop[attribute][Shop.player[attribute] + 1] == null) {
+                Shop[attribute][Shop.player[attribute]].price = "MAX"
+                element.style.backgroundColor = "gold"
+            } else {
+                Shop.player[attribute]++;
+            }
+            console.log(Shop);
+            shopRender()
+            switch (attribute) {
+                case "pickaxe":
+                    player.pickStrength += 10;
+                    break;
+
+                case "bag":
+                    if (Shop.player["bag"] == 6) {
+                        player.midas = 3
+                    } else {
+                        player.bagSlots++;
+                    }
+                    break;
+
+                case "lamp":
+                    player.lamp++;
+                    break;
+
+                case "swiftPickaxe":
+                    player.swiftPickaxe++;
+                    break;
+
+                case "cardio":
+                    player.cardio++;
+                    break;
+                case "diagonal":
+                    player.diagonal = true;
+                    break;
+            }
+        }
+    }); 
+});
+
+document.getElementsByClassName("functional")[0].addEventListener("click",() => {
+    try {
+        localStorage.setItem("world", JSON.stringify(world))
+        localStorage.setItem("Shop", JSON.stringify(Shop))
+        localStorage.setItem("player", JSON.stringify(player))
+    } catch (error) {
+        console.log(error);
+        alert("Error saving progress!")
+    }
+});
+document.getElementsByClassName("functional")[1].addEventListener("click",() => {
+    try {
+        localStorage.clear()
+        alert("Enjoy your new fresh start!")
+        window.location.reload();
+    } catch (error) {
+        console.log(error);
+        alert("Error restaring game!")
+    }
+});
+shopRender()
