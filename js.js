@@ -49,7 +49,7 @@ const colors = {
     104: "rgb(46, 44, 44)",
     105: "rgb(59, 56, 56)",
 
-    112: "rgb(150, 73, 18)",
+    112: "rgba(134, 65, 16, 1)",
     113: "rgb(120, 61, 18)",
     114: "rgb(90, 45, 14)",
     115: "rgb(62, 30, 8)",
@@ -265,7 +265,7 @@ const main = () => {
     world[6][34].type = 999;
     
     let f = getRandomInt(10,70)
-    let n = getRandomInt(60, 63)
+    let n = getRandomInt(80, 83)
     generateDoor(f, n, 0, 0, true)
     
     // Main game loop runs here (30 FPS)
@@ -588,7 +588,7 @@ const generateDoor = (x,y,posX,posY, up) => {
     for (let n of [3,2,1,0]) {
         for (let m of [3,2,1,0]) {
             let block = world[y - n][x + m].type
-            world[y - n][x + m].type = block == 32 ? 5 : block == 23 ? 2 : block == 14 ? 1 : 0
+            world[y - n][x + m].type = [32, 504].includes(block) ? 5 : [23, 112, 514].includes(block) ? 2 : block == 14 ? 1 : 0
             world[y - n][x + m].doorDarkness = block <= 10 ? false : true
         }
     }
