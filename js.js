@@ -11,7 +11,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = true
+const DISABLE_DARKNESS = false
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -31,6 +31,7 @@ const colors = {
     5: "rgba(75, 75, 75, 1)",
     6: "rgb(78, 95, 210)",
 
+    13: "rgba(37, 164, 17, 1)",
     14: "sienna",
     15: "saddlebrown",
 
@@ -116,24 +117,30 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
             price: 19
         },
         4: {
+            heading: "Midasov Dych",
+            p: "Všetko čo predáš má + 1 hodnotu!",
+            tier: "T??",
+            price: 80
+        },
+        5: {
             heading: "Jakubova Gym Taška",
             p: "Do môjej gym tašky sa zmestí aj 6 kameňov!",
             tier: "T4",
             price: 35
         },
-        5: {
+        6: {
             heading: "Jakubova školská Taška",
             p: "Do môjho batohu sa zmestí takmer všetko...",
             tier: "T5",
             price: 50
         },
-        6: {
+        7: {
             heading: "Midasov Dotyk",
-            p: "Všetko čo predáš má + 3 hodnotu!",
+            p: "Všetko čo predáš má + 4 hodnotu!",
             tier: "T??",
             price: 80
         },
-        7: null
+        8: null
     },
     lamp: {
         2: {
@@ -207,7 +214,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0,
+    money: 999,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
@@ -284,9 +291,9 @@ const generateWorld = () => {
             if (y == MAX_Y - 1) {
                 world[y][x].type = 999
                 world[y][x].darkness = false
-            } else if (y > 60) {
+            } else if (y > 80) {
                 world[y][x].type = 32
-                if (y > 62) {
+                if (y > 83) {
                     let n = getRandomInt(1,30)
                     world[y][x].type = n == 1 ? 504 : 32
                 }
@@ -298,10 +305,13 @@ const generateWorld = () => {
                     if (n == 1) world[y][x].type = 112
                     if (y > 26) {
                         n = getRandomInt(1,190)
+                        if (y > 55) {
+                            n = getRandomInt(1,130)
+                        }
                         if (n == 1) world[y][x].type = 514
                     }
                 }
-                if (y == 60) {
+                if (y == 80) {
                     world[y][x].type = getRandomInt(1,4) == 1 ? 23 : 32
                 }
                 world[y][x].darkness = true
@@ -312,8 +322,14 @@ const generateWorld = () => {
                     if (n == 1) world[y][x].type = 102
                     if (y > 9) {
                         n = getRandomInt(1,95)
+                        if (y > 15) {
+                            n = getRandomInt(1,60)
+                        }
                         if (n == 1) world[y][x].type = 504
                     }
+                }
+                if (y == 6) {
+                    world[y][x].type = 13
                 }
                 if (y == 20) {
                     world[y][x].type = getRandomInt(1,4) == 1 ? 14 : 23
@@ -646,7 +662,7 @@ startButton.addEventListener("click",() => {
 });
 
 Array.from(li).forEach(element => {
-    element.addEventListener("click",() => {
+    element.addEventListener("click",async () => {
         let attribute = element.attributes["data"].value
         let price = Shop[attribute][Shop.player[attribute]].price
         
@@ -659,8 +675,10 @@ Array.from(li).forEach(element => {
             } else {
                 Shop.player[attribute]++;
             }
-            console.log(Shop);
             shopRender()
+            let buySound = new Audio("sounds/buy.mp3")
+            buySound.play()
+
             switch (attribute) {
                 case "pickaxe":
                     player.pickStrength += 10;
@@ -668,7 +686,9 @@ Array.from(li).forEach(element => {
 
                 case "bag":
                     if (Shop.player["bag"] == 6) {
-                        player.midas = 3
+                        player.midas = 4
+                    } else if (Shop.player["bag"] == 4){
+                        player.midas = 1
                     } else {
                         player.bagSlots++;
                     }
@@ -689,6 +709,18 @@ Array.from(li).forEach(element => {
                     player.diagonal = true;
                     break;
             }
+            let all = true
+            for (let i of Object.keys(Shop)) {
+                if (i == "player" || Shop[i][Shop.player[i]].price == "MAX") continue
+                all = false
+            }
+            if (all) {
+                let end = new Audio("sounds/end.mp3")
+                end.volume = 0.05
+                await end.play()
+                alert("Gratulujem! Získal si všetko. Čo teraz?")
+            }
+            
         }
     }); 
 });
@@ -698,6 +730,7 @@ document.getElementsByClassName("functional")[0].addEventListener("click",() => 
         localStorage.setItem("world", JSON.stringify(world))
         localStorage.setItem("Shop", JSON.stringify(Shop))
         localStorage.setItem("player", JSON.stringify(player))
+        alert("Current state of the game has been saved to your device local storage!")
     } catch (error) {
         console.log(error);
         alert("Error saving progress!")

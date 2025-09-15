@@ -12,6 +12,7 @@
 5 DARK STONE WALL rgba(75, 75, 75, 1)
 6 DOOR TILE rgb(78, 95, 210)
 
+13 GRASS rgba(100, 188, 18, 1)
 14 DIRT sienna
 15 saddlebrown
 

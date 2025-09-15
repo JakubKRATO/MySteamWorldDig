@@ -5,6 +5,7 @@ body {
     align-items: center; 
     justify-content: center;
     background-color: black;
+    overflow-x: hidden;
 }
 button {
     padding: 20px 40px;
