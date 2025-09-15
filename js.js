@@ -214,7 +214,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 999,
+    money: 0,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
