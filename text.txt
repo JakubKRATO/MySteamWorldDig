@@ -54,6 +54,20 @@
 519 rgba(12, 75, 40, 1)
 520 rgba(7, 51, 27, 1)
 
+521 Ruinite rgba(207, 4, 4, 1)
+522 rgba(196, 12, 12, 1)
+523 rgba(189, 20, 20, 1)
+524 rgba(157, 7, 7, 1)11
+525 rgba(156, 18, 18, 1)
+526 rgba(146, 14, 14, 1)
+527 rgba(133, 9, 9, 1)
+528 rgba(126, 15, 15, 1)
+529 rgba(115, 10, 10, 1)
+530 rgba(101, 6, 6, 1)
+
+991 Tvrdá Stena rgba(255, 166, 0, 1)
+992 Jednoduchý Dynamit rgba(255, 0, 0, 1)
+993 Jednoduchý Dynamit (flicker) rgba(255, 255, 255, 1)
 
 999 BEDROCK
 
