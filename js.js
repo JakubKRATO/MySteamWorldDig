@@ -83,8 +83,15 @@ const colors = {
     529: "rgba(115, 10, 10, 1)",
     530: "rgba(101, 6, 6, 1)",
 
+    // 535 : LOADED AT THE BOTTOM
+    // 536 : LOADED AT THE BOTTOM
+    // 537 : LOADED AT THE BOTTOM
+    // 538 : LOADED AT THE BOTTOM
+    // 539 : LOADED AT THE BOTTOM
+    // 540 : LOADED AT THE BOTTOM
 
-    991: "rgba(255, 136, 0, 1)",
+
+    // 991: LOADED AT THE BOTTOM,
     992: "rgba(255, 0, 0, 1)",
     993: "rgba(255, 255, 255, 1)",
 
@@ -96,14 +103,16 @@ const rewards = {
     "Iron": 3,
     "Shredstone": 5,
     "Egodite": 11,
-    "Ruinite": 20
+    "Ruinite": 20,
+    "Jakub": 50,
 }
 const ores = {
     105: "Coal",
     115: "Iron",
     510: "Shredstone",
     520: "Egodite",
-    530: "Ruinite"
+    530: "Ruinite",
+    540: "Jakub"
 }
 const Tools = JSON.parse(localStorage.getItem("Tools")) || {
     dynamite: {
@@ -259,23 +268,23 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
 // }
 var player = {
     pos: {
-        x: 39,
-        y: 5
+        x: 49,
+        y: 95
     },
     bag: [],
     bagSlots: 3,
-    lamp: 1,
+    lamp: 3,
     pickStrength: 15,
     money: 990,
-    cardio: 1,
+    cardio: 2,
     swiftPickaxe: 1,
     midas: 0,
     diagonal: true,
     tools: {
-        dynamite: 0
+        dynamite: 20
     },
-    unlockedTools: [],
-    selectedTool: null
+    unlockedTools: ["dynamite"],
+    selectedTool: 0
 }
 /* CONFIG AREA */
 var world = [];
@@ -287,32 +296,41 @@ var keys = {}
 
 
 const main = () => {
-    startButton.innerHTML = "Back to game";
     document.getElementsByTagName("main")[0].style.display = "none";
+    startButton.innerHTML = "Back to game";
+
+    // Hiding shop
+    ShopElement.style.display = "none";
+
     if (!localStorage.getItem("world")) {
         console.log("Generating new world...")
         generateWorld();
     } else {
         world = JSON.parse(localStorage.getItem("world"))
     }
-    surfaceDarkness();
-    shopRender()
 
-    // Hiding shop
-    ShopElement.style.display = "none";
+    surfaceDarkness();
+    shopRender();
     
     // Setup SELL ZONE
-    generateDoor(41, 6, 0, 0, false, 3)
+    generateDoor(51, 6, 0, 0, false, 3)
     
     // SetupSHOP
-    generateDoor(34, 6, 0, 0, false, 4, 1)
+    generateDoor(44, 6, 0, 0, false, 4, 1)
     
-    let f = getRandomInt(10,70)
-    let n = getRandomInt(80, 83)
-    generateDoor(f, n, 0, 0, true)
+    // Generate hard wall wall
+    generateWall(83)
+    
+    // Generating layer 3 DOOR
+    let x = getRandomInt(10,70)
+    generateDoor(x, 80, 0, 0, true)
 
     /* GENERATE DUNGEONS */
     generateDungeon1()
+    generateDungeon2()
+
+    // Generating JAKUB
+    generateJakub()
 
     // Main game loop runs here (30 FPS)
     setInterval(() => {
@@ -334,12 +352,12 @@ const generateWorld = () => {
                 type: null,
                 darkness: null
             }
-            if (y == MAX_Y - 1) {
+            if (y > 120) {
                 world[y][x].type = 999
-                world[y][x].darkness = false
+                world[y][x].darkness = true
             } else if (y > 80) {
                 world[y][x].type = 32
-                if (y > 83) {
+                if (y > 86) {
                     let n = getRandomInt(1,30)
                     world[y][x].type = n == 1 ? 504 : 32
                 }
@@ -385,7 +403,6 @@ const generateWorld = () => {
                 world[y][x].type = 0
                 world[y][x].darkness = false
             }
-            world[y][x].color = colors[world[y][x].type]
         }
     }
     updateWorld()
@@ -417,6 +434,16 @@ const renderWorld = () => {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
             block = world[y][x];
+
+            if (block.type == 991 && !block.darkness) {
+                canvas.drawImage(colors[991], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                continue
+            }
+            if ([534,535,536,537,538,539,540].includes(block.type) && !block.darkness) {
+                canvas.drawImage(colors[block.type], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                continue
+            }
+            
             if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness && y > 7) {
                 setColor("black")
             } else {
@@ -447,6 +474,7 @@ const renderWorld = () => {
 const updatePlayer = () => {    
     let moved = false
     let dug = false
+    let standing = world[player.pos.y + 1][player.pos.x].type > 12 ? true : false
 
     if (player.diagonal) {
         if (keys["w"] && keys["a"]) {
@@ -484,13 +512,16 @@ const updatePlayer = () => {
             if (world[player.pos.y - 1][player.pos.x].type < 11 && movementSpeed < 0) {
                 player.pos.y--;
                 moved = true
+            } else if (diggingSpeed < 0 && standing) {
+                dig(player.pos.x, player.pos.y - 1)
+                dug = true
             }
         }
         if (keys["a"]) {
             if (world[player.pos.y][player.pos.x - 1].type < 11 && movementSpeed < 0) {
                 player.pos.x--;
                 moved = true
-            } else if (world[player.pos.y + 1][player.pos.x].type > 12 && diggingSpeed < 0) {
+            } else if (standing && diggingSpeed < 0) {
                 dig(player.pos.x - 1, player.pos.y)
                 dug = true
             }
@@ -508,21 +539,21 @@ const updatePlayer = () => {
             if (world[player.pos.y][player.pos.x + 1].type < 11 && movementSpeed < 0) {
                 player.pos.x++;
                 moved = true
-            } else if (world[player.pos.y + 1][player.pos.x].type > 12 && diggingSpeed < 0){
+            } else if (standing && diggingSpeed < 0){
                 dig(player.pos.x + 1, player.pos.y);
                 dug = true
             }
         }
     }
-    if (keys["ArrowRight"] && movementSpeed < 0 && world[player.pos.y][player.pos.x + 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite") {
+    if (keys["ArrowRight"] && movementSpeed < 0 && world[player.pos.y][player.pos.x + 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && standing) {
         boom(player.pos.x + 1 , player.pos.y)
         moved = true
     }
-    if (keys["ArrowLeft"] && movementSpeed < 0 && world[player.pos.y][player.pos.x - 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite") {
+    if (keys["ArrowLeft"] && movementSpeed < 0 && world[player.pos.y][player.pos.x - 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && standing) {
         boom(player.pos.x - 1 , player.pos.y)
         moved = true
     }
-    if (keys["ArrowDown"] && movementSpeed < 0 && world[player.pos.y + 1][player.pos.x].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite") {
+    if (keys["ArrowDown"] && movementSpeed < 0 && world[player.pos.y + 1][player.pos.x].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && standing) {
         boom(player.pos.x , player.pos.y + 1)
         moved = true
     }
@@ -539,7 +570,7 @@ const updatePlayer = () => {
         player.pos.x = block.teleport.x
         player.pos.y = block.teleport.y
         if (player.pos.y < 7) {
-            generateDoor(47, 6, oldX, oldY)
+            generateDoor(57, 6, oldX, oldY)
         }
         moved = true
     }
@@ -612,7 +643,7 @@ const dig = (x,y, boom) => {
     if (boom && target.type == 991 || target.type == 992 || target.type == 993) {
         world[y][x].type = setWall(y)
     }
-    if (boom && world[y][x].ore) {
+    if (boom && world[y][x].type > 100 && world[y][x].type < 990) {
         breakOre(x,y)
     }
 
@@ -705,7 +736,7 @@ const generateDoor = (x,y,posX,posY, up, type, shopType) => {
                 }
             }
             if (up) {
-                world[y - n][x + m].teleport = {x: 47, y: 5}
+                world[y - n][x + m].teleport = {x: 57, y: 5}
             } else world[y - n][x + m].teleport = {x: posX, y: posY}
         }
     }
@@ -715,6 +746,7 @@ const breakOre = (x,y) => {
     while (!(block % 10 == 5 && block < 499 || block > 500 && block % 10 == 0)) {
         block++;
     }
+    
     player.bag.push(ores[block])
     world[y][x].ore = false
     world[y][x].type = setWall(y)
@@ -801,10 +833,10 @@ const surfaceDarkness = () => {
     }
 };
 const generateDungeon1 = () => {
-    let randomX = getRandomInt(5,10)
+    let randomX = getRandomInt(3,5)
     let randomY = getRandomInt(47,75)
-    for (let x = randomX; x < randomX + 36; x++) {
-        for (let y = randomY; y > randomY - 20; y--) {
+    for (let x = randomX; x < randomX + 34; x++) {
+        for (let y = randomY; y > randomY - 15; y--) {
             world[y][x].type = 999
             world[y][x].darkness = true
         }
@@ -816,7 +848,6 @@ const generateDungeon1 = () => {
     }
     for (let y of [3,2,1]) {
         world[randomY - y - 4][randomX - y + 9].type = 2
-        console.log(y - 4, y + 9);
     }
     for (let y of [0,1,2,3]) {
         for (let x of [0,1,2,3,4]) {
@@ -860,6 +891,41 @@ const generateDungeon1 = () => {
     }
     world[randomY - 5][randomX + 28].type = 521
 };
+const generateDungeon2 = () => {
+    // generate entrances
+    generateDoor(50, 105, 2, 248)
+    player.pos.y = 103
+    generateDoor(1, 249, 51, 104)
+
+    for (let x of [0,1,2,3,4,5,6]) {
+        for (let y of [0,1,2,3,4]) {
+            world[248 - y][5 + x].type = 5
+        }
+    }
+    world[246][12].type = 14
+    for (let x of [0,1,2,3,4,5,6,7,8,9,10,11,12,13]) {
+        for (let y of [0,1,2,3,4,5,6]) {
+            world[246 - y][13 + x].type = 5
+        }
+    }
+    for (let x of [0,1,2,3,4,5]) {
+        world[243][13 + x].type = 999
+    }
+    for (let y of [0,1,2]) {
+        world[240 + y][16].type = 991
+    }
+    world[242][13].type = 521
+    world[241][13].type = 514
+    world[242][14].type = 521
+    world[242][27].type = 14
+    world[242][28].type = 5
+    for (let x of [0,1,2,3,4,5,6]) {
+        for (let y of [0,1,2]) {
+            world[242 + y][29 + x].type = 5
+        }
+    }
+    // ended here
+};
 const setColor = (color) => {
     canvas.fillStyle = color
 };
@@ -870,9 +936,43 @@ startButton.addEventListener("click",() => {
     }
     game.requestFullscreen();
 });
+const generateJakub = () => {
+    let x;
+    let y;
+    do {
+        x = getRandomInt(0, MAX_X - 1)
+        y = getRandomInt(20, 85)
+    } while (world[y][x].type > 100)
+
+    world[y][x].type = 535
+    
+};
 const getIndex = (word) => {
     for (let i = 0; i < player.unlockedTools.length; i++) {
         if (player.unlockedTools[i] == word) return i
+    }
+};
+const generateWall = (y) => {
+    let stone = y > 80 ? 32 : y > 20 ? 23 : 13
+
+    for (let realY of [-4, -3, -2, -1, 0, 1, 2, 3, 4]) {
+        for (let x = 0; x < MAX_X; x++) {
+
+            let n = getRandomInt(1,5)
+            if (Math.abs(realY) == 4) {
+                world[y + realY][x].type = n == 1 ? 991 : stone
+
+            } else if (Math.abs(realY) == 3) {
+                world[y + realY][x].type = n == 1 || n == 2 ? 991 : stone
+
+            } else if (Math.abs(realY) == 2) {
+                world[y + realY][x].type = n == 1 || n == 2 || n == 3 ? 991 : stone
+
+            } else if (Math.abs(realY) <= 1) {
+                world[y + realY][x].type = 991
+
+            }
+        }
     }
 };
 Array.from(liTools).forEach(element => {
@@ -888,7 +988,6 @@ Array.from(liTools).forEach(element => {
 
             player.money -= price
             player.selectedTool = getIndex(attribute)
-            console.log(player.selectedTool);
             
             switch (attribute) {
                 case "dynamite":
@@ -983,6 +1082,25 @@ document.getElementsByClassName("functional")[1].addEventListener("click",() => 
     }
 });
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
+const loadTexture = (type, path) => {
+    let img = new Image()
+    img.src = path
+    img.onload = () => {
+        colors[type] = img
+    };
+    img.onerror = () => {
+        console.log(`Failed to load texture ${type}`);
+    };
+};
 shopRender()
 toolShopRender()
+
+// Rendering textures
+loadTexture(991, "blocks/hard_wall.jpg");
+loadTexture(534, "blocks/jakub1.png");
+loadTexture(535, "blocks/jakub2.png");
+loadTexture(536, "blocks/jakub3.png");
+loadTexture(537, "blocks/jakub4.png");
+loadTexture(538, "blocks/jakub5.png");
+loadTexture(539, "blocks/jakub6.png");
+loadTexture(540, "blocks/jakub7.png");

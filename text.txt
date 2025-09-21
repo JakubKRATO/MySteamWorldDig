@@ -65,10 +65,24 @@
 529 rgba(115, 10, 10, 1)
 530 rgba(101, 6, 6, 1)
 
-991 Tvrdá Stena rgba(255, 166, 0, 1)
+534 Jakub
+535
+536 
+537 
+538 
+539 
+540 
+
+991 Tvrdá Stena 
 992 Jednoduchý Dynamit rgba(255, 0, 0, 1)
 993 Jednoduchý Dynamit (flicker) rgba(255, 255, 255, 1)
 
 999 BEDROCK
 
 TODO:
+compass UPGRADE
+TNT GUI
+new idea:
+    ak hrac dojde niekde v dungeone tak sa vypise jakubY
+    dungeon bude POD TVRDOU STENOU
+    + urobis novy block ktory sa bude iba krompacom dat znicit a pouzijes TECH
