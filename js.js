@@ -273,7 +273,7 @@ var player = {
     },
     bag: [],
     bagSlots: 3,
-    lamp: 3,
+    lamp: 1,
     pickStrength: 15,
     money: 990,
     cardio: 2,
@@ -545,11 +545,11 @@ const updatePlayer = () => {
             }
         }
     }
-    if (keys["ArrowRight"] && movementSpeed < 0 && world[player.pos.y][player.pos.x + 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && standing) {
+    if (keys["ArrowRight"] && movementSpeed < 0 && world[player.pos.y][player.pos.x + 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && player.tools["dynamite"] > 0 && standing) {
         boom(player.pos.x + 1 , player.pos.y)
         moved = true
     }
-    if (keys["ArrowLeft"] && movementSpeed < 0 && world[player.pos.y][player.pos.x - 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && standing) {
+    if (keys["ArrowLeft"] && movementSpeed < 0 && world[player.pos.y][player.pos.x - 1].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && player.tools["dynamite"] > 0 && standing) {
         boom(player.pos.x - 1 , player.pos.y)
         moved = true
     }
@@ -712,6 +712,11 @@ const renderGUI = () => {
         case 0:
             setColor("red")
             canvas.fillRect(50, 50, 50, 50)
+            canvas.fillStyle = "white"; 
+            canvas.font = "16px Arial";
+            canvas.textAlign = "center";
+            canvas.textBaseline = "middle";
+            canvas.fillText(player.tools["dynamite"], 75, 78);
             break;
     }
 };
@@ -777,6 +782,7 @@ const toolShopRender = () => {
     }
 };
 const boom = async (x,y) => {
+    player.tools["dynamite"]--;
     let illegal = [3,4,6,999]
     if (illegal.includes(world[y][x].type)) return
 
@@ -894,17 +900,17 @@ const generateDungeon1 = () => {
 const generateDungeon2 = () => {
     // generate entrances
     generateDoor(50, 105, 2, 248)
-    player.pos.y = 103
     generateDoor(1, 249, 51, 104)
-
+    
     for (let x of [0,1,2,3,4,5,6]) {
         for (let y of [0,1,2,3,4]) {
             world[248 - y][5 + x].type = 5
         }
     }
     world[246][12].type = 14
+    world[246][13].type = 5
     for (let x of [0,1,2,3,4,5,6,7,8,9,10,11,12,13]) {
-        for (let y of [0,1,2,3,4,5,6]) {
+        for (let y of [1,2,3,4,5,6]) {
             world[246 - y][13 + x].type = 5
         }
     }
@@ -924,7 +930,73 @@ const generateDungeon2 = () => {
             world[242 + y][29 + x].type = 5
         }
     }
-    // ended here
+    for (let y of [0,1,2,3,4]) {
+        let x = y % 2
+        world[244 + y][29 - x].type = 5
+    }
+    world[245][28].type = 14
+    world[248][30].type = 14
+    generateDoor(31,249,8,241)
+    generateDoor(8,242,31,248)
+    for (let x of [0,1,2,3]) {
+        for (let y of [0,1,2]) {
+            world[241 - y][7 - x].type = 5
+        }
+    }
+    world[241][4].type = 521
+    world[240][4].type = 521
+    world[241][5].type = 521
+    world[243][34].type = 999
+    world[242][34].type = 14
+    world[241][36].type = 14
+    for (let x of [0,1,2,3,4]) {
+        world[241][37 + x].type = 5
+    }
+    for (let y of [0,1,2]) {
+        world[241 - y][41].type = 5
+    }
+    world[238][41].type = 14
+    world[239][42].type = 14
+    for (let x of [0,1,2,3,4]) {
+        for (let y of [0,1,2]) {
+            world[237 - y][40 + x].type = 5
+        }
+    }
+    world[234][39].type = 535
+    world[233][38].type = 535
+    world[232][37].type = 14
+    generateDoor(33,234,44,237)
+    generateDoor(44,238,35,233)
+    world[236][48].type = 14
+    for (let y of [0,1,2]) {
+        for (let x of [0,1,2]) {
+            world[238 - y][49 + x].type = 5
+        }
+    }
+    for (let y of [0,1,2,3,4,5,6,7]) {
+        for (let x of [0,1,2,3,4,5,6,7]) {
+            world[238 + y][49 + x].type = 14
+        }
+    }
+    world[241][53].type = 999
+    for (let y of [0,1,2]) {
+        for (let x of [0,1,2,3,4,5,6]) {
+            world[237 - y][57 + x].type = x > 3 ? 991 : 5
+        }
+    }
+    world[237][57].type = 521
+    world[236][63].type = 521
+    world[237][62].type = 514
+    world[237][63].type = 534
+    world[245][57].type = 5
+    player.pos.x = 57 
+    player.pos.y = 245
+    for (let y of [0,1,2,3]) {
+        world[245 - y][58].type = 5
+    }
+    world[241][58].type = 14
+    generateDoor(59, 241) // tu si skoncil
+
 };
 const setColor = (color) => {
     canvas.fillStyle = color
@@ -991,6 +1063,8 @@ Array.from(liTools).forEach(element => {
             
             switch (attribute) {
                 case "dynamite":
+                    console.log(player.tools);
+                    
                     player.tools["dynamite"]++;
             }
         }
