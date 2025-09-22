@@ -13,7 +13,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = false
+const DISABLE_DARKNESS = true
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -561,10 +561,9 @@ const updatePlayer = () => {
     //     moved = true
     // } I WILL IMPLEMENT THIS AFTER I ADD MORE TOOLS INTO THE GAME
 
-    if (keys["Enter"] && movementSpeed < 0) {
+    if (keys["Enter"] && block.type == 6) {
         let block = world[player.pos.y][player.pos.x]
 
-        if (block.type != 6) return
         let oldX = player.pos.x
         let oldY = player.pos.y
         player.pos.x = block.teleport.x
@@ -572,7 +571,7 @@ const updatePlayer = () => {
         if (player.pos.y < 7) {
             generateDoor(57, 6, oldX, oldY)
         }
-        moved = true
+
     }
     if (moved) {
         movementSpeed = player.cardio == 3 ? 0.16 : player.cardio == 2 ? 0.23 : 0.3
@@ -995,7 +994,13 @@ const generateDungeon2 = () => {
         world[245 - y][58].type = 5
     }
     world[241][58].type = 14
-    generateDoor(59, 241) // tu si skoncil
+    world[240][59].type = 5
+    generateDoor(60, 242, 35, 241)    
+    generateDoor(60, 242, 35, 241)    
+    world[242][34].type = 14 // tututu
+
+
+
 
 };
 const setColor = (color) => {
