@@ -733,15 +733,19 @@ const generateDoor = (x,y,posX,posY, up, type, shopType) => {
     for (let n of [1,2]) {
         for (let m of [1,2]) {
             world[y - n][x + m].type = 6
-            if (type) {
-                world[y - n][x + m].type = type
-                if (shopType != undefined) {
-                    world[y - n][x + m].obchod = shopType
+            try {                
+                if (type) {
+                    world[y - n][x + m].type = type
+                    if (shopType != undefined) {
+                        world[y - n][x + m].obchod = shopType
+                    }
                 }
+                if (up) {
+                    world[y - n][x + m].teleport = {x: 57, y: 5}
+                } else world[y - n][x + m].teleport = {x: posX, y: posY}
+            } catch (error) {
+                console.log(error);
             }
-            if (up) {
-                world[y - n][x + m].teleport = {x: 57, y: 5}
-            } else world[y - n][x + m].teleport = {x: posX, y: posY}
         }
     }
 };
@@ -995,9 +999,11 @@ const generateDungeon2 = () => {
     }
     world[241][58].type = 14
     world[240][59].type = 5
-    generateDoor(60, 242, 35, 241)    
-    generateDoor(60, 242, 35, 241)    
-    world[242][34].type = 14 // tututu
+
+    world[242][34].type = 14
+    
+    generateDoor(60, 242, 35, 241)
+    generateDoor(34, 242, 61, )
 
 
 
