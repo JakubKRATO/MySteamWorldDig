@@ -13,7 +13,7 @@ const MAX_Y = 250;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = true
+const DISABLE_DARKNESS = false
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -45,6 +45,12 @@ const colors = {
     33: "rgba(85, 85, 85, 1)",
     34: "rgba(71, 71, 71, 1)",
     35: "rgba(61, 61, 61, 1)",
+
+    41: "rgba(85, 60, 60, 1)",
+    42:  "rgba(92, 92, 92, 1)",
+    43:  "rgba(59, 59, 59, 1)",
+    44:  "rgba(20, 20, 20, 1)",
+    45:  "rgba(0, 0, 0, 1)",
 
     102: "rgb(28, 28, 28)",
     103: "rgb(40, 39, 39)",
@@ -104,6 +110,7 @@ const rewards = {
     "Shredstone": 5,
     "Egodite": 11,
     "Ruinite": 20,
+    "Aurorite": 35,
     "Jakub": 50,
 }
 const ores = {
@@ -112,7 +119,8 @@ const ores = {
     510: "Shredstone",
     520: "Egodite",
     530: "Ruinite",
-    540: "Jakub"
+    540: "Jakub",
+    550: "Aurorite"
 }
 const Tools = JSON.parse(localStorage.getItem("Tools")) || {
     dynamite: {
@@ -136,7 +144,13 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
             tier: "T3",
             price: 65
         },
-        4: null,
+        4: {
+            heading: "Krompáč pravdy o duši",
+            p: "Tento krompáč je ti nanič. Pravdepodobne. Keď nastane čas tak ti pomôže do hrobky kde ťa čaká test.",
+            tier: "T-END... alebo?",
+            price: 130
+        },
+        5: null
     },
     bag: {
         2: {
@@ -196,7 +210,13 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
             tier: "T4",
             price: 55
         },
-        5: null
+        5: {
+            heading: "Lampáš strýka Maťa",
+            p: "Za jeho dedikáciu.. S týmto svetlom vyťažíš každú rudu v tomto svete",
+            tier: "T5",
+            price: 70
+        },
+        6: null
     },
     swiftPickaxe: {
         2: {
@@ -269,19 +289,19 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
 var player = {
     pos: {
         x: 49,
-        y: 95
+        y: 5
     },
     bag: [],
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
     money: 990,
-    cardio: 2,
+    cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
-    diagonal: true,
+    diagonal: false,
     tools: {
-        dynamite: 20
+        dynamite: 999
     },
     unlockedTools: ["dynamite"],
     selectedTool: 0
@@ -309,6 +329,7 @@ const main = () => {
         world = JSON.parse(localStorage.getItem("world"))
     }
 
+    world[5][30].type = 997
     surfaceDarkness();
     shopRender();
     
@@ -435,11 +456,7 @@ const renderWorld = () => {
             
             block = world[y][x];
 
-            if (block.type == 991 && !block.darkness) {
-                canvas.drawImage(colors[991], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                continue
-            }
-            if ([534,535,536,537,538,539,540].includes(block.type) && !block.darkness) {
+            if ([534,535,536,537,538,539,540,546,547,548,549,550,994,995,996,991,997,1001,1002,1003].includes(block.type) && !block.darkness) {
                 canvas.drawImage(colors[block.type], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 continue
             }
@@ -553,7 +570,7 @@ const updatePlayer = () => {
         boom(player.pos.x - 1 , player.pos.y)
         moved = true
     }
-    if (keys["ArrowDown"] && movementSpeed < 0 && world[player.pos.y + 1][player.pos.x].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && standing) {
+    if (keys["ArrowDown"] && movementSpeed < 0 && world[player.pos.y + 1][player.pos.x].type < 13 && player.unlockedTools[player.selectedTool] == "dynamite" && player.tools["dynamite"] > 0 && standing) {
         boom(player.pos.x , player.pos.y + 1)
         moved = true
     }
@@ -561,17 +578,21 @@ const updatePlayer = () => {
     //     moved = true
     // } I WILL IMPLEMENT THIS AFTER I ADD MORE TOOLS INTO THE GAME
 
-    if (keys["Enter"] && block.type == 6) {
+    if (keys["Enter"] && movementSpeed < 0) {
         let block = world[player.pos.y][player.pos.x]
+        if (block.type == 6) {
 
-        let oldX = player.pos.x
-        let oldY = player.pos.y
-        player.pos.x = block.teleport.x
-        player.pos.y = block.teleport.y
-        if (player.pos.y < 7) {
-            generateDoor(57, 6, oldX, oldY)
+    
+            let oldX = player.pos.x
+            let oldY = player.pos.y
+            player.pos.x = block.teleport.x
+            player.pos.y = block.teleport.y
+            if (player.pos.y < 7) {
+                generateDoor(57, 6, oldX, oldY)
+            }
+            moved = true
         }
-
+        console.log(block);
     }
     if (moved) {
         movementSpeed = player.cardio == 3 ? 0.16 : player.cardio == 2 ? 0.23 : 0.3
@@ -584,6 +605,11 @@ const updatePlayer = () => {
         
         for (let i = 0; i < player.bagSlots; i++) {
             if (!!player.bag[i]) {
+                if (player.bag[i] == "INFO") {
+                    alert("Chcel by si nejaké info?\nTým že si toto predal si práve spravil progress.\n\n- zelené dvere otvoríš tak že sa pozrieš niekde pod trávu a nájdeš tam zelený klúč\n- Modré dvere otvoríš tak že sa vrátíš do obchodu s dynamitmi znova a preskúmaš okolie\n- Biele dvere otvoríš tak že preskúmaš podzemie kde POD TVRDOU STENOU (tam kde je tmavý kameň)\n\nPre nedostatok času som nenašiel spôsob ako tento text ponechať aby si ho videl, tak si prosím vytvor nový textový dokument a skopíruj si túto správu aby si vedel čo máš robiť.\nNa to aby si otvoril dvere musíš rozbiť všetky 3 klúče");
+                    generateSeals()
+                    continue
+                }
                 player.money += parseInt(rewards[player.bag[i]] + player.midas);
             }
         }
@@ -601,7 +627,27 @@ const updatePlayer = () => {
         ShopElement.style.display = "none"
     }
 };
+const generateSeals = () => {
+    let n = getRandomInt(8,72)
+    world[7][n].type = 1003
+    world[7][n].darkness = true
 
+    for (let y of [0,1,2]) {
+        for (let x of [0,1,2]) {
+            world[68 + y][32 + x].type = 991
+        }
+    }
+    world[69][33].type = 1002
+
+    let ranY = getRandomInt(90,100) 
+    for (let x of [0,1,2,3,4]) {
+        for (let y of [0,1,2,3,4]) {
+            world[ranY - y][n + x].type = 991
+        }
+    }
+    world[ranY - 2][n + 2].type = 1001
+    world[ranY - 2][n + 2].darkness = false
+};
 const setDarkness = () => {
     let blocks;
     switch (player.lamp) {
@@ -616,6 +662,9 @@ const setDarkness = () => {
             break
         case 4:
             blocks = [-4 ,-3, -2, -1, 0, 1, 2, 3, 4]
+            break
+        case 5:
+            blocks = [-5 ,-4 ,-3, -2, -1, 0, 1, 2, 3, 4, 5]
             break
 
     }
@@ -636,6 +685,33 @@ const dig = (x,y, boom) => {
     let target = world[y][x].type;
     if (target < 12) return
 
+    if (target == 997) {
+        world[y][x].type = setWall(y)
+        player.bag.push("INFO")
+        return
+    }
+    if (target == 1001) {
+        world[y][x].type = setWall(y)
+        for (let y of [0,1,2,3]) {
+            world[215 + y][44].type = 5
+        }
+        return
+    }
+    if (target == 1002) {
+        for (let y of [0,1,2,3]) {
+            world[215 + y][40].type = 5
+        }
+        world[y][x].type = setWall(y)
+        return
+    }
+    if (target == 1003) {
+        for (let y of [0,1,2,3]) {
+            world[215 + y][42].type = 5
+        }
+        world[y][x].type = setWall(y)
+        return
+    }
+
     if (target > 990 && boom && !world[y][x].ore) {
         world[y][x].type = setWall(y)
     }
@@ -644,6 +720,7 @@ const dig = (x,y, boom) => {
     }
     if (boom && world[y][x].type > 100 && world[y][x].type < 990) {
         breakOre(x,y)
+        return
     }
 
     if ((target > 10 && !(target > 990) && !(target % 10 == 5) && player.pickStrength >= target) || target > 100 && target < 990) {
@@ -786,7 +863,7 @@ const toolShopRender = () => {
 };
 const boom = async (x,y) => {
     player.tools["dynamite"]--;
-    let illegal = [3,4,6,999]
+    let illegal = [3,4,6,999,41,994,995,996,997,1001,1002,1003]
     if (illegal.includes(world[y][x].type)) return
 
     let block = world[y][x]
@@ -842,8 +919,8 @@ const surfaceDarkness = () => {
     }
 };
 const generateDungeon1 = () => {
-    let randomX = getRandomInt(3,5)
-    let randomY = getRandomInt(47,75)
+    let randomX = 5
+    let randomY = 73
     for (let x = randomX; x < randomX + 34; x++) {
         for (let y = randomY; y > randomY - 15; y--) {
             world[y][x].type = 999
@@ -863,6 +940,7 @@ const generateDungeon1 = () => {
             world[randomY - 7 - y][randomX + 6 - x].type = 2
         }
     }
+    world[67][6].type = 546
     world[randomY - 7][randomX + 2].type = 514
     world[randomY - 7][randomX + 3].type = 514
     for (let x of [0,1,2,3,4,5]) {
@@ -992,15 +1070,11 @@ const generateDungeon2 = () => {
     world[237][62].type = 514
     world[237][63].type = 534
     world[245][57].type = 5
-    player.pos.x = 57 
-    player.pos.y = 245
     for (let y of [0,1,2,3]) {
         world[245 - y][58].type = 5
     }
     world[241][58].type = 14
     world[240][59].type = 5
-
-    world[242][34].type = 14
     
     generateDoor(60, 242, 35, 241)
     generateDoor(34, 242, 61, )
@@ -1178,10 +1252,23 @@ toolShopRender()
 
 // Rendering textures
 loadTexture(991, "blocks/hard_wall.jpg");
-loadTexture(534, "blocks/jakub1.png");
-loadTexture(535, "blocks/jakub2.png");
-loadTexture(536, "blocks/jakub3.png");
-loadTexture(537, "blocks/jakub4.png");
-loadTexture(538, "blocks/jakub5.png");
-loadTexture(539, "blocks/jakub6.png");
-loadTexture(540, "blocks/jakub7.png");
+loadTexture(994, "blocks/blue_wall.png");
+loadTexture(995, "blocks/green_wall.png");
+loadTexture(996, "blocks/white_wall.png");
+loadTexture(1001, "blocks/white_key.png");
+loadTexture(1002, "blocks/blue_key.png");
+loadTexture(1003, "blocks/green_key.png");
+loadTexture(997, "blocks/info.png");
+
+// Load Jakub
+for (let i = 1; i < 8; i++) {
+    loadTexture(533 + i, `blocks/jakub${i}.png`);
+}
+// Load Aurorite
+for (let i = 1; i < 6; i++) {
+    loadTexture(545 + i, `blocks/Aurorite${i}.png`);
+}
+
+setInterval(() => {
+    console.log(`world[${player.pos.y}][${player.pos.x}]`);
+}, 500);
