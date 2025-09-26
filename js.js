@@ -1004,10 +1004,6 @@ const generateDungeon2 = () => {
     
     generateDoor(60, 242, 35, 241)
     generateDoor(34, 242, 61, )
-
-
-
-
 };
 const setColor = (color) => {
     canvas.fillStyle = color
