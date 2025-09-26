@@ -20,7 +20,11 @@ const res = "1280x800";
 game.width  = 1280;
 game.height = 800;
 var playing = false
+var ended = false
 
+var totalMoney = 0
+var startTime
+var tntUses = 0
 /* CONFIG AREA */
 var movementSpeed = 0.3;
 var diggingSpeed = 0.3;
@@ -171,9 +175,9 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
         },
         4: {
             heading: "Midasov Dych",
-            p: "Všetko čo predáš má + 1 hodnotu!",
+            p: "Všetko čo predáš má + 2 hodnotu!",
             tier: "T??",
-            price: 80
+            price: 25
         },
         5: {
             heading: "Jakubova Gym Taška",
@@ -189,7 +193,7 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
         },
         7: {
             heading: "Midasov Dotyk",
-            p: "Všetko čo predáš má + 4 hodnotu!",
+            p: "Všetko čo predáš má + 6 hodnotu!",
             tier: "T??",
             price: 80
         },
@@ -270,40 +274,20 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
         diagonal: 2
     }
 }
-// var player = JSON.parse(localStorage.getItem("player")) || {
-//     pos: {
-//         x: 39,
-//         y: 5
-//     },
-//     bag: [],
-//     bagSlots: 3,
-//     lamp: 1,
-//     pickStrength: 15,
-//     money: 990,
-//     cardio: 1,
-//     swiftPickaxe: 1,
-//     midas: 0,
-//     diagonal: true,
-//     tools: {
-//         dynamite: 0
-//     },
-//     unlockedTools: [],
-//     selectedTool: null
-// }
-var player = {
+var player = JSON.parse(localStorage.getItem("player")) || {
     pos: {
-        x: 39,
+        x: 49,
         y: 5
     },
     bag: [],
     bagSlots: 3,
-    lamp: 5,
+    lamp: 1,
     pickStrength: 15,
-    money: 990,
+    money: 0,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
-    diagonal: true,
+    diagonal: false,
     tools: {
         dynamite: 0
     },
@@ -317,7 +301,7 @@ var cameraX = 0;
 var cameraY = 0;
 var moveCooldown = 0.5;
 var keys = {}
-
+var gameloop;
 
 const main = () => {
     document.getElementsByTagName("main")[0].style.display = "none";
@@ -337,13 +321,12 @@ const main = () => {
     shopRender();
     /* TESTING CHANGES TO THE WORLD SPACE*/
 
-    world[5][40].type = 1000
-    world[5][41].type = 1100
 
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
     // Main game loop runs here (30 FPS)
-    setInterval(() => {
+    startTime = Date.now()
+    gameloop = setInterval(() => {
         updatePlayer()
         renderWorld()
         renderGUI()
@@ -454,6 +437,7 @@ const updateWorld = () => {
     }
 };
 const renderWorld = () => {
+    if (ended) return
     // --- CAMERA (tile-based) ---
     cameraX = player.pos.x - Math.floor(DISPLAY_X / 2);
     cameraY = player.pos.y - Math.floor(DISPLAY_Y / 2);
@@ -628,14 +612,13 @@ const updatePlayer = () => {
                     continue
                 }
                 if (player.bag[i] == "Blue Diamond") {
-                    let end = new Audio("sounds/end.mp3")
-                    end.volume = 0.4
-                    end.play()
+                    endgame("good")
                 }
                 if (player.bag[i] == "Horrorite") {
-                    alert("Bad ending")
+                    endgame("bad")
                 }
                 player.money += parseInt(rewards[player.bag[i]] + player.midas);
+                totalMoney += parseInt(rewards[player.bag[i]] + player.midas);
             }
         }
         keys["q"] = false
@@ -791,6 +774,7 @@ const setWall = (y) => {
 
 
 const renderGUI = () => {
+    if (ended) return
     const slotsize = 100
     const margin = 20
     
@@ -906,6 +890,7 @@ const toolShopRender = () => {
 };
 const boom = async (x,y) => {
     player.tools["dynamite"]--;
+    tntUses++;
     let illegal = [3,4,6,999,41,994,995,996,997,1001,1002,1003,1000,1100]
     if (illegal.includes(world[y][x].type)) return
 
@@ -1231,6 +1216,116 @@ const generateDungeon2 = () => {
     world[164][59].type = 999
     world[163][58].type = 1000
 };
+const calcTime = (totalTime) => {
+    let seconds = Math.floor(totalTime / 1000) % 60;
+    let minutes = Math.floor(totalTime / (1000 * 60)) % 60;
+    let hours   = Math.floor(totalTime / (1000 * 60 * 60));
+
+    let formattedTime = 
+        (hours > 0 ? hours + "h " : "") + 
+        (minutes > 0 ? minutes + "m " : "") + 
+        seconds + "s";
+
+    return formattedTime
+
+};
+const endgame = async (ending) => {
+    cameraX = player.pos.x - Math.floor(DISPLAY_X / 2);
+    cameraY = player.pos.y - Math.floor(DISPLAY_Y / 2);
+    
+    cameraX = Math.max(0, Math.min(cameraX, MAX_X - DISPLAY_X));
+    cameraY = Math.max(0, Math.min(cameraY, MAX_Y - DISPLAY_Y));
+    
+    const startX = cameraX;
+    const startY = cameraY;
+    if (ending == "bad") {
+        colors[0] = "rgba(140, 28, 17, 1)"
+        await sleep(3000)
+        ended = true
+        clearInterval(gameloop)
+        await sleep(3000)
+        let sound = new Audio("sounds/buzzer.mp3")
+        sound.volume = 1
+        sound.play()
+        for (let y = cameraY; y < cameraY + DISPLAY_Y; y++) {
+            for (let x = cameraX; x < cameraX + DISPLAY_X / 2; x++) {
+                await sleep(0.1)
+                canvas.drawImage(colors[1100], (x - startX) * TILE_SIZE * 2.5, (y - startY) * TILE_SIZE * 2.5, TILE_SIZE * 2.5, TILE_SIZE * 2.5)
+            }
+        }
+    } else {
+        ended = true
+        clearInterval(gameloop)
+        setColor("gold")
+        for (let y = cameraY; y < cameraY + DISPLAY_Y; y++) {
+            for (let x = cameraX; x < cameraX + DISPLAY_X / 2; x++) {
+                await sleep(0.1)
+                canvas.fillRect((x - startX) * TILE_SIZE * 2.5, (y - startY) * TILE_SIZE * 2.5, TILE_SIZE * 2.5, TILE_SIZE * 2.5)
+            }
+        }
+    }
+    await sleep(2000)
+    canvas.clearRect(0, 0, game.width, game.height);
+    
+    canvas.fillStyle = "black";
+    canvas.fillRect(0, 0, game.width, game.height);
+    
+    canvas.fillStyle = "white";
+    canvas.textAlign = "center";
+    canvas.textBaseline = "middle";
+    
+    let totalTime = Date.now() - startTime
+    let calculated = calcTime(totalTime)
+    if (ending === "good") {
+        await sleep(3000)
+        totalMoney -= 500
+        let end = new Audio("sounds/end.mp3")
+        end.volume = 0.4
+        end.play()
+        await sleep(5000)
+        canvas.font = "50px Arial";
+        canvas.fillText("GOOD ENDING", game.width / 2, game.height / 2 - 200);
+        await sleep(500)
+        canvas.font = "15px Arial";
+        canvas.fillText("ending 1/2", game.width / 2, game.height / 2 - 170);
+        await sleep(2000)
+        canvas.font = "28px Arial";
+        canvas.fillText("Gratulujem, našiel si modrý diamant a dokončil si moju hru! ", game.width / 2, game.height / 2);
+        await sleep(2000)
+        canvas.fillText("Ďakujem za tvoj čas a tu máš svoje výsledky:", game.width / 2, game.height / 2 + 30);
+        canvas.font = "20px Arial";
+        await sleep(1000)
+        canvas.fillText(`Zarobené peniaze dokopy: ${totalMoney}`, game.width / 2, game.height / 2 + 200);
+        await sleep(1000)
+        canvas.fillText(`Čas: ${calculated}`, game.width / 2, game.height / 2 + 225);
+        await sleep(1000)
+        canvas.fillText(`Použité dynamity: ${tntUses}`, game.width / 2, game.height / 2 + 250);
+
+    } else if (ending === "bad") {
+        await sleep(1000)
+        let sound = new Audio("sounds/sad1.mp3")
+        sound.volume = 1
+        sound.play()
+        await sleep(2000)
+        canvas.font = "50px Arial";
+        canvas.fillText("BAD ENDING", game.width / 2, game.height / 2 - 200);
+        await sleep(500)
+        canvas.font = "15px Arial";
+        canvas.fillText("ending 2/2", game.width / 2, game.height / 2 - 170);
+        await sleep(2000)
+        canvas.font = "28px Arial";
+        canvas.fillText("Zvedavosť ti nedala a musel si vyťažiť to orečko. Práve si vykopal zlú dušu bane ", game.width / 2, game.height / 2);
+        await sleep(2000)
+        canvas.fillText("Ďakujem za tvoj čas a tu máš svoje výsledky:", game.width / 2, game.height / 2 + 30);
+        canvas.font = "20px Arial";
+        await sleep(1000)
+        canvas.fillText(`Zarobené peniaze dokopy: ${totalMoney}`, game.width / 2, game.height / 2 + 200);
+        await sleep(1000)
+        canvas.fillText(`Čas: ${calculated}`, game.width / 2, game.height / 2 + 225);
+        await sleep(1000)
+        canvas.fillText(`Použité dynamity: ${tntUses}`, game.width / 2, game.height / 2 + 250);
+    }
+};
 const setColor = (color) => {
     canvas.fillStyle = color
 };
@@ -1328,9 +1423,9 @@ Array.from(li).forEach(element => {
 
                 case "bag":
                     if (Shop.player["bag"] == 6) {
-                        player.midas = 4
+                        player.midas = 6
                     } else if (Shop.player["bag"] == 4){
-                        player.midas = 1
+                        player.midas = 2
                     } else {
                         player.bagSlots++;
                     }
