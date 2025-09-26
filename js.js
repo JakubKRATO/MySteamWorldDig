@@ -112,6 +112,8 @@ const rewards = {
     "Ruinite": 20,
     "Aurorite": 35,
     "Jakub": 50,
+    "Blue Diamond": 500,
+    "Horrorite": 0
 }
 const ores = {
     105: "Coal",
@@ -120,14 +122,16 @@ const ores = {
     520: "Egodite",
     530: "Ruinite",
     540: "Jakub",
-    550: "Aurorite"
+    550: "Aurorite",
+    1000: "Blue Diamond",
+    1100: "Horrorite"
 }
 const Tools = JSON.parse(localStorage.getItem("Tools")) || {
     dynamite: {
             heading: "Jednoduchý dynamit",
             p: "Dynamit dokáže zničiť tvrdú stenu (krompáč nie)",
             tier: "",
-            price: 10
+            price: 7
     }
 }
 const Shop = JSON.parse(localStorage.getItem("Shop")) || {
@@ -288,23 +292,23 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
 // }
 var player = {
     pos: {
-        x: 49,
+        x: 39,
         y: 5
     },
     bag: [],
     bagSlots: 3,
-    lamp: 1,
+    lamp: 5,
     pickStrength: 15,
     money: 990,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
-    diagonal: false,
+    diagonal: true,
     tools: {
-        dynamite: 999
+        dynamite: 0
     },
-    unlockedTools: ["dynamite"],
-    selectedTool: 0
+    unlockedTools: [],
+    selectedTool: null
 }
 /* CONFIG AREA */
 var world = [];
@@ -329,30 +333,15 @@ const main = () => {
         world = JSON.parse(localStorage.getItem("world"))
     }
 
-    world[5][30].type = 997
     surfaceDarkness();
     shopRender();
-    
-    // Setup SELL ZONE
-    generateDoor(51, 6, 0, 0, false, 3)
-    
-    // SetupSHOP
-    generateDoor(44, 6, 0, 0, false, 4, 1)
-    
-    // Generate hard wall wall
-    generateWall(83)
-    
-    // Generating layer 3 DOOR
-    let x = getRandomInt(10,70)
-    generateDoor(x, 80, 0, 0, true)
+    /* TESTING CHANGES TO THE WORLD SPACE*/
 
-    /* GENERATE DUNGEONS */
-    generateDungeon1()
-    generateDungeon2()
+    world[5][40].type = 1000
+    world[5][41].type = 1100
 
-    // Generating JAKUB
-    generateJakub()
-
+    /* TESTING CHANGES TO THE WORLD SPACE*/
+    
     // Main game loop runs here (30 FPS)
     setInterval(() => {
         updatePlayer()
@@ -362,7 +351,7 @@ const main = () => {
         movementSpeed -= 0.033; // 33ms = 0.033s
         diggingSpeed -= 0.033;
     }, 33); // ~30 FPS
-
+    
 }
 
 const generateWorld = () => {
@@ -427,6 +416,35 @@ const generateWorld = () => {
         }
     }
     updateWorld()
+    // Setup SELL ZONE
+    generateDoor(51, 6, 0, 0, false, 3)
+    
+    // SetupSHOP
+    generateDoor(44, 6, 0, 0, false, 4, 1)
+    
+    // Generate hard wall wall
+    generateWall(83)
+    
+    // Generating layer 3 DOOR
+    let x = getRandomInt(10,70)
+    generateDoor(x, 80, 0, 0, true)
+    
+    /* GENERATE DUNGEONS */
+    generateDungeon1()
+    generateDungeon2()
+    for (let y = 1; y < 39; y++) {
+        for (let x = 0; x < y; x++) {
+            world[82 + y][x].type = 999
+        }
+    }
+    for (let y = 1; y < 39; y++) {
+        for (let x = 0; x < y; x++) {
+            world[82 + y][79 - x].type = 999
+        }
+    }
+    
+    // Generating JAKUB
+    generateJakub()
 };
 const updateWorld = () => {
     for (let y = 0; y < MAX_Y; y++) {
@@ -456,7 +474,7 @@ const renderWorld = () => {
             
             block = world[y][x];
 
-            if ([534,535,536,537,538,539,540,546,547,548,549,550,994,995,996,991,997,1001,1002,1003].includes(block.type) && !block.darkness) {
+            if ([534,535,536,537,538,539,540,546,547,548,549,550,994,995,996,991,997,1001,1002,1003,1000,1100].includes(block.type) && !block.darkness) {
                 canvas.drawImage(colors[block.type], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 continue
             }
@@ -592,7 +610,6 @@ const updatePlayer = () => {
             }
             moved = true
         }
-        console.log(block);
     }
     if (moved) {
         movementSpeed = player.cardio == 3 ? 0.16 : player.cardio == 2 ? 0.23 : 0.3
@@ -600,7 +617,7 @@ const updatePlayer = () => {
     if (dug) {
         diggingSpeed = player.swiftPickaxe == 3 ? 0.16 : player.swiftPickaxe == 2 ? 0.23 : 0.3
     }
-    if (keys["q"]) { // Selling
+    if (keys["q"] && world[player.pos.y][player.pos.x].type == 3) { // Selling
         if (world[player.pos.y][player.pos.x].type != 3) return
         
         for (let i = 0; i < player.bagSlots; i++) {
@@ -610,9 +627,19 @@ const updatePlayer = () => {
                     generateSeals()
                     continue
                 }
+                if (player.bag[i] == "Blue Diamond") {
+                    let end = new Audio("sounds/end.mp3")
+                    end.volume = 0.4
+                    end.play()
+                }
+                if (player.bag[i] == "Horrorite") {
+                    alert("Bad ending")
+                }
                 player.money += parseInt(rewards[player.bag[i]] + player.midas);
             }
         }
+        keys["q"] = false
+        
         player.bag = []
     }
     
@@ -688,6 +715,22 @@ const dig = (x,y, boom) => {
     if (target == 997) {
         world[y][x].type = setWall(y)
         player.bag.push("INFO")
+        return
+    }
+    if (target == 1000) {
+        player.bag.push(ores[target])
+        world[y][x].ore = false
+        world[y][x].type = setWall(y)
+        world[159][48].type = 999
+        world[160][48].type = 999
+        return
+    }
+    if (target == 1100) {
+        player.bag.push(ores[target])
+        world[y][x].ore = false
+        world[y][x].type = setWall(y)
+        world[159][58].type = 999
+        world[160][58].type = 999
         return
     }
     if (target == 1001) {
@@ -863,7 +906,7 @@ const toolShopRender = () => {
 };
 const boom = async (x,y) => {
     player.tools["dynamite"]--;
-    let illegal = [3,4,6,999,41,994,995,996,997,1001,1002,1003]
+    let illegal = [3,4,6,999,41,994,995,996,997,1001,1002,1003,1000,1100]
     if (illegal.includes(world[y][x].type)) return
 
     let block = world[y][x]
@@ -980,8 +1023,8 @@ const generateDungeon1 = () => {
 };
 const generateDungeon2 = () => {
     // generate entrances
-    generateDoor(50, 105, 2, 248)
-    generateDoor(1, 249, 51, 104)
+    generateDoor(38, 121, 2, 248)
+    generateDoor(1, 249, 39, 120)
     
     for (let x of [0,1,2,3,4,5,6]) {
         for (let y of [0,1,2,3,4]) {
@@ -1076,8 +1119,117 @@ const generateDungeon2 = () => {
     world[241][58].type = 14
     world[240][59].type = 5
     
-    generateDoor(60, 242, 35, 241)
-    generateDoor(34, 242, 61, )
+    generateDoor(60, 242, 35, 238)
+    generateDoor(34, 239, 61, 241)
+    for (let x of [0,1,2,3,4,5,6,7]) {
+        for (let y of [0,1,2,3]) {
+            world[238 - y][33 - x].type = 5
+        }
+    }
+    world[238][27].type = 999
+    world[238][26].type = 999
+    world[238][28].type = 546
+    world[239][27].type = 521
+    for (let x of [0,1,2,3,4]) {
+        for (let y of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]) {
+            let n = getRandomInt(1,4)
+            world[237 - y][25 - x].type = y >= 4 && y < 19 && n > 1 ? 991 : 5
+            if (y > 13) world[237 - y][25 - x].type = y >= 4 && n > 2 ? 991 : 5
+            
+        }
+    }
+    world[233][23].type = 999
+    world[226][23].type = 999
+    world[230][26].type = 5
+    world[230][27].type = 546
+    world[229][27].type = 546
+    world[229][28].type = 546
+    world[230][28].type = 546
+    
+    world[223][20].type = 5
+    world[223][19].type = 534
+    world[223][18].type = 534
+    world[222][19].type = 546
+    world[222][18].type = 521
+    world[221][17].type = 534
+    for (let x of [0,1,2,3,4,5,6,7,8,9,10,11,12,13]) {
+        for (let y of [0,1,2,3]) {
+            let n = getRandomInt(1,2)
+            world[216 - y][21 + x].type = x > 9 && n == 2 ? 41 : 5
+            if (x == 13) {
+                world[216 - y][21 + x].type = 41
+            }
+        }
+    }
+    for (let x of [0,1,2,3,4,5,6,7,8,9,10,11,12,13]) {
+        for (let y of [-1,0,1,2,3,4,5]) {
+            world[216 - y][35 + x].type = 5
+        }
+    }
+    for (let x of [0,1,2,3,4,5,6,7,8,9]) {
+        world[215][39 + x].type = 999
+    }
+    for (let x of [0,1,2,3,4,5,6,7,8,9]) {
+        world[214][39 + x].type = 999
+    }
+    
+    for (let y of [0,1,2,3]) {
+        world[215 + y][40].type = 994
+    }
+    for (let y of [0,1,2,3]) {
+        world[215 + y][42].type = 995
+    }
+    for (let y of [0,1,2,3]) {
+        world[215 + y][44].type = 996
+    }
+    
+    world[212][46].type = 997
+    world[213][46].type = 999
+    world[213][45].type = 999
+    world[213][47].type = 999
+    // generating final door
+    for (let x = 0; x < 23; x++) {
+        for (let y = 0; y < 15; y++) {
+            world[150 + y][42 + x].type = 5
+        }
+    }
+    generateDoor(46,218,50,150)
+    generateDoor(49,151,45,217)
+
+    for (let y of [0,1,2,3,4,5]) {
+        world[164 - y][44].type = 999
+        world[164 - y][51].type = 999
+        world[164 - y][45].type = 999
+        world[164 - y][52].type = 999
+    }
+    for (let x of [0,1,2,3,4,5,6]) {
+        world[159][44 + x].type = 999
+        world[160][44 + x].type = 999
+    }
+    world[159][48].type = 5
+    world[160][48].type = 5
+    world[164][47].type = 999
+    world[164][48].type = 999
+    world[164][49].type = 999
+    world[163][48].type = 1100
+
+    // second chamber
+    for (let y of [0,1,2,3,4,5]) {
+        world[164 - y][54].type = 999
+        world[164 - y][55].type = 999
+        world[164 - y][61].type = 999
+        world[164 - y][62].type = 999
+    }
+    for (let x of [0,1,2,3,4,5,6]) {
+        world[159][54 + x].type = 999
+        world[160][54 + x].type = 999
+    }
+    world[159][58].type = 5
+    world[160][58].type = 5
+    world[164][57].type = 999
+    world[164][58].type = 999
+    world[164][59].type = 999
+    world[163][58].type = 1000
 };
 const setColor = (color) => {
     canvas.fillStyle = color
@@ -1205,10 +1357,7 @@ Array.from(li).forEach(element => {
                 all = false
             }
             if (all) {
-                let end = new Audio("sounds/end.mp3")
-                end.volume = 0.05
-                await end.play()
-                alert("Gratulujem! Získal si všetko. Čo teraz?")
+
             }
         }
     }); 
@@ -1259,6 +1408,8 @@ loadTexture(1001, "blocks/white_key.png");
 loadTexture(1002, "blocks/blue_key.png");
 loadTexture(1003, "blocks/green_key.png");
 loadTexture(997, "blocks/info.png");
+loadTexture(1000, "blocks/blue_diamond.png");
+loadTexture(1100, "blocks/horrorite.png");
 
 // Load Jakub
 for (let i = 1; i < 8; i++) {
