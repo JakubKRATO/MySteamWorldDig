@@ -22,9 +22,9 @@ game.height = 800;
 var playing = false
 var ended = false
 
-var totalMoney = localStorage.getItem("money") || 0
+var totalMoney = parseInt(localStorage.getItem("money")) || 0
 var startTime
-var tntUses = localStorage.getItem("tntUses") || 0
+var tntUses = parseInt(localStorage.getItem("tntUses")) || 0
 /* CONFIG AREA */
 var movementSpeed = 0.3;
 var diggingSpeed = 0.3;
@@ -1464,9 +1464,9 @@ document.getElementsByClassName("functional")[0].addEventListener("click",() => 
         localStorage.setItem("Shop", JSON.stringify(Shop))
         localStorage.setItem("player", JSON.stringify(player))
         localStorage.setItem("Tools", JSON.stringify(Tools))
-        localStorage.setItem("time", JSON.stringify(time))
-        localStorage.setItem("money", JSON.stringify(totalMoney))
-        localStorage.setItem("tntUses", JSON.stringify(tntUses))
+        localStorage.setItem("time", time)
+        localStorage.setItem("money", totalMoney)
+        localStorage.setItem("tntUses", tntUses)
         alert("Current state of the game has been saved to your device local storage!")
     } catch (error) {
         console.log(error);
