@@ -103,3 +103,6 @@ li .price {
     background-color: black;
     padding: 5px 10px;
 }
+.hide {
+    display: none !important;
+}

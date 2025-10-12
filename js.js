@@ -23,8 +23,11 @@ var playing = false
 var ended = false
 
 var totalMoney = parseInt(localStorage.getItem("money")) || 0
-var startTime
+var sessionStart;
+var totalPlayTime = parseInt(localStorage.getItem("time")) || 0
+
 var tntUses = parseInt(localStorage.getItem("tntUses")) || 0
+
 /* CONFIG AREA */
 var movementSpeed = 0.3;
 var diggingSpeed = 0.3;
@@ -307,9 +310,6 @@ const main = () => {
     document.getElementsByTagName("main")[0].style.display = "none";
     startButton.innerHTML = "Back to game";
 
-    // Hiding shop
-    ShopElement.style.display = "none";
-
     if (!localStorage.getItem("world")) {
         console.log("Generating new world...")
         generateWorld();
@@ -319,13 +319,15 @@ const main = () => {
 
     surfaceDarkness();
     shopRender();
+
+    sessionStart = Date.now()
     /* TESTING CHANGES TO THE WORLD SPACE*/
 
 
+    
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
     // Main game loop runs here (30 FPS)
-    startTime =  localStorage.getItem("time") || Date.now()
     gameloop = setInterval(() => {
         updatePlayer()
         renderWorld()
@@ -427,6 +429,7 @@ const generateWorld = () => {
     }
     
     // Generating JAKUB
+    generateJakub()
     generateJakub()
 };
 const updateWorld = () => {
@@ -628,13 +631,13 @@ const updatePlayer = () => {
     
     if (world[player.pos.y][player.pos.x].type == 4 && world[player.pos.y][player.pos.x].obchod == 1) {
         shopRender()
-        ShopElement.style.display = "flex"
+        ShopElement.classList.remove("hide")
     } else if (world[player.pos.y][player.pos.x].type == 4 && world[player.pos.y][player.pos.x].obchod == 2) {
         toolShopRender()
-        ToolsElement.style.display = "flex"
+        ToolsElement.classList.remove("hide")
     } else {
-        ToolsElement.style.display = "none"
-        ShopElement.style.display = "none"
+        ToolsElement.classList.add("hide")
+        ShopElement.classList.add("hide")
     }
 };
 const generateSeals = () => {
@@ -873,7 +876,14 @@ const shopRender = () => {
         left.children[0].innerHTML = data.heading
         left.children[1].innerHTML = data.p
         left.children[2].innerHTML = data.tier
-        i.children[1].innerHTML = data.price == "MAX" ? "MAX" : data.price + "$"
+
+        // if price is MAX we set bg to gold and let the ptag display MAX, else show price
+        if (data.price == "MAX") {
+            i.style.backgroundColor = "gold"
+            i.children[1].innerHTML = "MAX"
+        } else {
+            i.children[1].innerHTML = data.price + "$"
+        }
     }
 };
 const toolShopRender = () => {
@@ -1273,9 +1283,9 @@ const endgame = async (ending) => {
     canvas.fillStyle = "white";
     canvas.textAlign = "center";
     canvas.textBaseline = "middle";
-    
-    let totalTime = Date.now() - startTime
-    let calculated = calcTime(totalTime)
+
+    let temptotalPlayTime = Date.now() - sessionStart + totalPlayTime
+    let calculated = calcTime(temptotalPlayTime)
     if (ending === "good") {
         await sleep(3000)
         totalMoney -= 500
@@ -1446,25 +1456,21 @@ Array.from(li).forEach(element => {
                     player.diagonal = true;
                     break;
             }
-            let all = true
-            for (let i of Object.keys(Shop)) {
-                if (i == "player" || Shop[i][Shop.player[i]].price == "MAX") continue
-                all = false
-            }
-            if (all) {
-
-            }
         }
     }); 
 });
 
 document.getElementsByClassName("functional")[0].addEventListener("click",() => {
     try {
+        if (sessionStart) {
+            totalPlayTime += Date.now() - sessionStart
+            sessionStart = Date.now()
+        }
         localStorage.setItem("world", JSON.stringify(world))
         localStorage.setItem("Shop", JSON.stringify(Shop))
         localStorage.setItem("player", JSON.stringify(player))
         localStorage.setItem("Tools", JSON.stringify(Tools))
-        localStorage.setItem("time", time)
+        localStorage.setItem("time", totalPlayTime)
         localStorage.setItem("money", totalMoney)
         localStorage.setItem("tntUses", tntUses)
         alert("Current state of the game has been saved to your device local storage!")
