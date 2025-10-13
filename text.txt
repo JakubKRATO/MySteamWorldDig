@@ -103,5 +103,6 @@
 999 BEDROCK
 
 TODO:
-ending
-last door generuje v strede v pyramide dole
+compass - upgrade za 5 (bude ukazovat Hĺbku)
+achviementy - tied na localhost 
+    - funkcia getAchvievement() by bola tam kde sa orecko dava do inventara (achviementy za new ore found) + nejake ine co by si chcel dat
