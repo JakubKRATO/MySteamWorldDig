@@ -828,12 +828,12 @@ const renderGUI = () => {
             break;
         case 0:
             setColor("red")
-            canvas.fillRect(50, 50, 50, 50)
+            canvas.fillRect(50, 100, 50, 50)
             canvas.fillStyle = "white"; 
             canvas.font = "16px Arial";
             canvas.textAlign = "center";
             canvas.textBaseline = "middle";
-            canvas.fillText(player.tools["dynamite"], 75, 78);
+            canvas.fillText(player.tools["dynamite"], 75, 128);
             break;
     }
     if (player.compaas) {
