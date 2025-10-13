@@ -268,13 +268,23 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
         },
         3: null
     },
+    compaas: {
+        2: {
+            heading: "Compaas",
+            p: "Budeš vedieť ako hlboko si.",
+            tier: "T1",
+            price: 5
+        },
+        3: null
+    },
     player: {
         pickaxe: 2,
         bag: 2,
         lamp: 2,
         swiftPickaxe: 2,
         cardio: 2,
-        diagonal: 2
+        diagonal: 2,
+        compaas: 2
     }
 }
 var player = JSON.parse(localStorage.getItem("player")) || {
@@ -286,7 +296,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0,
+    money: 999,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
@@ -295,7 +305,8 @@ var player = JSON.parse(localStorage.getItem("player")) || {
         dynamite: 0
     },
     unlockedTools: [],
-    selectedTool: null
+    selectedTool: null,
+    compaas: false
 }
 /* CONFIG AREA */
 var world = [];
@@ -824,6 +835,17 @@ const renderGUI = () => {
             canvas.textBaseline = "middle";
             canvas.fillText(player.tools["dynamite"], 75, 78);
             break;
+    }
+    if (player.compaas) {
+        setColor("black");
+        canvas.fillRect(20,50,90,30);
+        setColor("white")
+        canvas.strokeRect(20, 50, 90, 30)
+        canvas.font = "16px Arial";
+        canvas.fillStyle = "white";
+        canvas.textAlign = "center";
+        canvas.textBaseline = "middle";
+        canvas.fillText(`Hĺbka: ${player.pos.y - 5}`,60, 67);
     }
 };
 const generateDoor = (x,y,posX,posY, up, type, shopType) => {
@@ -1408,6 +1430,8 @@ Array.from(liTools).forEach(element => {
         }
     });
 });
+
+// Shop logic
 Array.from(li).forEach(element => {
     element.addEventListener("click",async () => {
         let attribute = element.attributes["data"].value
@@ -1432,9 +1456,9 @@ Array.from(li).forEach(element => {
                     break;
 
                 case "bag":
-                    if (Shop.player["bag"] == 6) {
+                    if (Shop.player["bag"] == 7) {
                         player.midas = 6
-                    } else if (Shop.player["bag"] == 4){
+                    } else if (Shop.player["bag"] == 5){
                         player.midas = 2
                     } else {
                         player.bagSlots++;
@@ -1454,6 +1478,9 @@ Array.from(li).forEach(element => {
                     break;
                 case "diagonal":
                     player.diagonal = true;
+                    break;
+                case "compaas":
+                    player.compaas = true;
                     break;
             }
         }
