@@ -17,7 +17,7 @@ const salt = 10;
 
 
 app.get("/", (req, res) => {
-    console.log("Somebody logged into your website at: " + Date.now())
+    console.error("Somebody logged into your website at: " + Date.now())
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
