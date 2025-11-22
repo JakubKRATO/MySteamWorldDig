@@ -12,5 +12,6 @@ def index():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
+    debugMode = os.getenv("debug")
     print(f"Server running on port {port}")
-    app.run(debug=True,port=port)
+    app.run(host="0.0.0.0",debug=debugMode,port=port)
