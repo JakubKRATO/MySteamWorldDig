@@ -1276,7 +1276,7 @@ const endgame = async (ending) => {
         ended = true
         clearInterval(gameloop)
         await sleep(3000)
-        let sound = new Audio("sounds/buzzer.mp3")
+        let sound = new Audio("static/sounds/buzzer.mp3")
         sound.volume = 1
         sound.play()
         for (let y = cameraY; y < cameraY + DISPLAY_Y; y++) {
@@ -1311,7 +1311,7 @@ const endgame = async (ending) => {
     if (ending === "good") {
         await sleep(3000)
         totalMoney -= 500
-        let end = new Audio("sounds/end.mp3")
+        let end = new Audio("static/sounds/end.mp3")
         end.volume = 0.4
         end.play()
         await sleep(5000)
@@ -1335,7 +1335,7 @@ const endgame = async (ending) => {
 
     } else if (ending === "bad") {
         await sleep(1000)
-        let sound = new Audio("sounds/sad1.mp3")
+        let sound = new Audio("static/sounds/sad1.mp3")
         sound.volume = 1
         sound.play()
         await sleep(2000)
@@ -1415,7 +1415,7 @@ Array.from(liTools).forEach(element => {
         if (price <= player.money) {
             if (!player.unlockedTools.includes(attribute)) player.unlockedTools.push(attribute)
 
-            let buySound = new Audio("sounds/buy.mp3")
+            let buySound = new Audio("static/sounds/buy.mp3")
             buySound.play()
 
             player.money -= price
@@ -1447,7 +1447,7 @@ Array.from(li).forEach(element => {
                 Shop.player[attribute]++;
             }
             shopRender()
-            let buySound = new Audio("sounds/buy.mp3")
+            let buySound = new Audio("static/sounds/buy.mp3")
             buySound.play()
 
             switch (attribute) {
@@ -1531,24 +1531,24 @@ shopRender()
 toolShopRender()
 
 // Rendering textures
-loadTexture(991, "blocks/hard_wall.jpg");
-loadTexture(994, "blocks/blue_wall.png");
-loadTexture(995, "blocks/green_wall.png");
-loadTexture(996, "blocks/white_wall.png");
-loadTexture(1001, "blocks/white_key.png");
-loadTexture(1002, "blocks/blue_key.png");
-loadTexture(1003, "blocks/green_key.png");
-loadTexture(997, "blocks/info.png");
-loadTexture(1000, "blocks/blue_diamond.png");
-loadTexture(1100, "blocks/horrorite.png");
+loadTexture(991, "static/blocks/hard_wall.jpg");
+loadTexture(994, "static/blocks/blue_wall.png");
+loadTexture(995, "static/blocks/green_wall.png");
+loadTexture(996, "static/blocks/white_wall.png");
+loadTexture(1001, "static/blocks/white_key.png");
+loadTexture(1002, "static/blocks/blue_key.png");
+loadTexture(1003, "static/blocks/green_key.png");
+loadTexture(997, "static/blocks/info.png");
+loadTexture(1000, "static/blocks/blue_diamond.png");
+loadTexture(1100, "static/blocks/horrorite.png");
 
 // Load Jakub
 for (let i = 1; i < 8; i++) {
-    loadTexture(533 + i, `blocks/jakub${i}.png`);
+    loadTexture(533 + i, `static/blocks/jakub${i}.png`);
 }
 // Load Aurorite
 for (let i = 1; i < 6; i++) {
-    loadTexture(545 + i, `blocks/Aurorite${i}.png`);
+    loadTexture(545 + i, `static/blocks/Aurorite${i}.png`);
 }
 
 setInterval(() => {
