@@ -1,0 +1,15 @@
+{% extends "template.html" %}
+
+{% block title %} 
+    <title>Error</title> 
+{% endblock %}
+
+{% block body %}
+
+<body>
+    <h1>Chyba? Chyba. - {{ message }}</h1>
+    <h2>Neviem jak si sa sem dostal, uživatel, ale tu maš link na <a href="/register">register</a> a <a href="/login">login</a>.</h2>
+    <a href="/">Chcem ísť domov!</a>
+</body>
+
+{% endblock %}

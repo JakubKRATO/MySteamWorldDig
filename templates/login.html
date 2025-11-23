@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+
+{% block title %} 
+    <title>Login!</title> 
+    <link rel="stylesheet" href="static/login_register.css">
+{% endblock %}
+
+{% block body %}
+
+<body>
+    <br><br><br>
+    <main>
+        <h1>Login!</h1>
+        <h3>Len zadaj username a password.</h3>
+        <form action="">
+            <input type="text" required placeholder="Nick">
+            <input type="password" required placeholder="Heslo">
+            <button type="submit">Prihlásiť sa</button>
+        </form>
+    </main>
+    <script src="static/login.js"></script>
+</body>
+
+{% endblock %}

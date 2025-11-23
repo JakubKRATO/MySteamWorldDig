@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySteamWorldDig</title>
+    <link rel="stylesheet" href="static/game.css">
+</head>
+<body>
+    <main>
+        <h1>NEW UPDATE COMMING IN A FEW DAYS</h1>
+        <h1>Vitaj! Tu je môj chabý pokus re-createnuť hru SteamWorldDig!</h1>
+        <h2>Prečítaj si návod! (nebudeš vedieť ako otvoriť obchod napríkad ak to nespravíš!)</h2>
+        <h3>Posledná zmena: 22.11.2025</h3>
+        <h2>v1.1.5 - python backend is live?</h2>
+        <h2>UPDATE ROADMAP</h2>
+        <ul>
+            <li><p>Register + login (každý run bude viazaný na hráča)</p></li>
+            <li><p>Leaderboards - 4 kategorie: čas, najviac money, najmenej TNT uses, MAX money MIN time%</p></li>
+            <li><p>Update ideas page: budeš mi môcť posielať nápady cez formulár</p></li>
+            <li><p>PS: ak máš nápad ako tuto hru nazvať tak napíš aj to lebo na meno som stále neprišiel.</p></li>
+        </ul>
+    </main>
+    <canvas style="border: 1px solid gray;"></canvas>
+    <button class="start">Click to start!</button>
+
+    <main class="shop upgrades hide">
+        <h3>Shop</h3>
+        <div class="container">
+            <ul>
+                <li data="pickaxe">
+                    <div class="left">
+                        <h4 class="heading">Stone Pickaxe</h4>
+                        <p class="desc">Lets you mine STONE!</p>
+                        <p class="tier">T1</p>
+                    </div>
+                    <div class="price">15$</div>
+                </li>
+                <li data="bag">
+                    <div class="left">
+                        <h4 class="heading">Humongous Pouch</h4>
+                        <p class="desc">Make your bag carry more ROCKS</p>
+                        <p class="tier">T1</p>
+                    </div>
+                    <div class="price">25$</div>
+                </li>
+                <li data="lamp">
+                    <div class="left">
+                        <h4 class="heading">OLED lamp</h4>
+                        <p class="desc">Increases the strength of your LAMP</p>
+                        <p class="tier">T1</p>
+                    </div>
+                    <div class="price">35$</div>
+                </li>
+                <li data="swiftPickaxe">
+                    <div class="left">
+                        <h4 class="heading">Swift Pickaxe</h4>
+                        <p class="desc">Ability to mine faster!</p>
+                        <p class="tier">T1</p>
+                    </div>
+                    <div class="price">100$</div>
+                </li>
+                <li data="cardio">
+                    <div class="left">
+                        <h4 class="heading">Swift Pickaxe</h4>
+                        <p class="desc">Ability to mine faster!</p>
+                        <p class="tier">T1</p>
+                    </div>
+                    <div class="price">100$</div>
+                </li>
+                <li data="diagonal">
+                    <div class="left">
+                        <h4 class="heading"></h4>
+                        <p class="desc"></p>
+                        <p class="tier"></p>
+                    </div>
+                    <div class="price"></div>
+                </li>
+                <li data="compaas">
+                    <div class="left">
+                        <h4 class="heading"></h4>
+                        <p class="desc"></p>
+                        <p class="tier"></p>
+                    </div>
+                    <div class="price"></div>
+                </li>
+            </ul>
+        </div>
+    </main>
+    <main class="shop tools hide">
+        <h3>Tools Shop</h3>
+        <div class="container">
+            <ul>
+                <li data="dynamite">
+                    <div class="left">
+                        <h4 class="heading">Stone Pickaxe</h4>
+                        <p class="desc">Lets you mine STONE!</p>
+                        <p class="tier">T1</p>
+                    </div>
+                    <div class="price">15$</div>
+                </li>
+            </ul>
+        </div>
+    </main>
+    <br>
+    <button class="functional">Save Progress</button>
+    <br>
+    <button class="functional">Restart Game</button>
+    <script src="static/js.js" type="module"></script>
+</body>
+</html>

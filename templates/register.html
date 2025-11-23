@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+
+{% block title %} 
+    <title>Registruj sa!</title> 
+    <link rel="stylesheet" href="static/login_register.css">
+{% endblock %}
+
+{% block body %}
+
+<body>
+    <br><br><br>
+    <main>
+        <h1>Registruj sa!</h1>
+        <h3>Len zadaj username a password. Heslo môže byť aj "1" ale ak sa ti niekto nabúra do účtu tak potom neplač. :)</h3>
+        <form action="/register" method="POST">
+            <input type="text" required placeholder="Nick" name="nick">
+            <input type="password" required placeholder="Heslo" name="password">
+            <button type="submit">Chcem učet!</button>
+        </form>
+    </main>
+</body>
+
+{% endblock %}

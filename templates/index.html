@@ -1,118 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySteamWorldDig</title>
-    <link rel="stylesheet" href="static/style.css">
-</head>
-<body>
-    <main>
-        <h1>NEW UPDATE COMMING IN A FEW DAYS</h1>
-        <h1>Vitaj! Tu je môj chabý pokus re-createnuť hru SteamWorldDig!</h1>
-        <h2>Prečítaj si návod! (nebudeš vedieť ako otvoriť obchod napríkad ak to nespravíš!)</h2>
-        <ul>
-            <li><p>Hýb sa pocou WASD</p></li>
-            <li><p>Môžeš kopať IBA keď stojíš na zemi!</p></li>
-            <li><p>Obchod odvoríš tak že v hre budeš stáť na zelených blokoch, stlačíš F11 (vypneš fullscreen), pozri sa dole na web a mal by si tam vidieť obchod!</p></li>
-            <li><p>Predáš tak že pôjdeš do oranžovej zóny a klikneš Q</p></li>
-            <li><p>Ak ti hra nejde spustiť, skús si to resetovať tlačidlom nižšie</p></li>
-        </ul>
-        <h3>Posledná zmena: 22.11.2025</h3>
-        <h2>v1.1.5 - python backend is live?</h2>
-        <h2>UPDATE ROADMAP</h2>
-        <ul>
-            <li><p>Register + login (každý run bude viazaný na hráča)</p></li>
-            <li><p>Leaderboards - 4 kategorie: čas, najviac money, najmenej TNT uses, MAX money MIN time%</p></li>
-            <li><p>Update ideas page: budeš mi môcť posielať nápady cez formulár</p></li>
-            <li><p>PS: ak máš nápad ako tuto hru nazvať tak napíš aj to lebo na meno som stále neprišiel.</p></li>
-        </ul>
-    </main>
-    <canvas style="border: 1px solid gray;"></canvas>
-    <button class="start">Click to start!</button>
+{% extends "template.html" %}
 
-    <main class="shop upgrades hide">
-        <h3>Shop</h3>
-        <div class="container">
-            <ul>
-                <li data="pickaxe">
-                    <div class="left">
-                        <h4 class="heading">Stone Pickaxe</h4>
-                        <p class="desc">Lets you mine STONE!</p>
-                        <p class="tier">T1</p>
-                    </div>
-                    <div class="price">15$</div>
-                </li>
-                <li data="bag">
-                    <div class="left">
-                        <h4 class="heading">Humongous Pouch</h4>
-                        <p class="desc">Make your bag carry more ROCKS</p>
-                        <p class="tier">T1</p>
-                    </div>
-                    <div class="price">25$</div>
-                </li>
-                <li data="lamp">
-                    <div class="left">
-                        <h4 class="heading">OLED lamp</h4>
-                        <p class="desc">Increases the strength of your LAMP</p>
-                        <p class="tier">T1</p>
-                    </div>
-                    <div class="price">35$</div>
-                </li>
-                <li data="swiftPickaxe">
-                    <div class="left">
-                        <h4 class="heading">Swift Pickaxe</h4>
-                        <p class="desc">Ability to mine faster!</p>
-                        <p class="tier">T1</p>
-                    </div>
-                    <div class="price">100$</div>
-                </li>
-                <li data="cardio">
-                    <div class="left">
-                        <h4 class="heading">Swift Pickaxe</h4>
-                        <p class="desc">Ability to mine faster!</p>
-                        <p class="tier">T1</p>
-                    </div>
-                    <div class="price">100$</div>
-                </li>
-                <li data="diagonal">
-                    <div class="left">
-                        <h4 class="heading"></h4>
-                        <p class="desc"></p>
-                        <p class="tier"></p>
-                    </div>
-                    <div class="price"></div>
-                </li>
-                <li data="compaas">
-                    <div class="left">
-                        <h4 class="heading"></h4>
-                        <p class="desc"></p>
-                        <p class="tier"></p>
-                    </div>
-                    <div class="price"></div>
-                </li>
-            </ul>
+{% block title %} 
+    <title>Hlavná stránka</title> 
+    <link rel="stylesheet" href="static/index.css">
+{% endblock %}
+
+{% block body %}
+
+<body>
+    <h1>NOTE: THE BACKEND IS NOT WORKING NOW. PLEASE STAND BY . . .</h1>
+    {% if name %}
+    <a href="/profile"><h2 class="welcome">Vitaj, {{ name }}</h2></a>
+    {% endif %}
+    <section class="hero">
+        <div class="wrapper">
+            <h1>Jakubland: Question of the Blue Diamond?</h1>
+            <p class="main">
+                V Jakublande poznajú legendu o modrom diamante.<br>
+                No pri pátraní po ňom sa narazilo aj na veci, o ktorých sa už nehovorí.<br>
+                Nie všetky objavy boli určené pre svetlo.<br>
+            </p>
         </div>
-    </main>
-    <main class="shop tools hide">
-        <h3>Tools Shop</h3>
-        <div class="container">
-            <ul>
-                <li data="dynamite">
-                    <div class="left">
-                        <h4 class="heading">Stone Pickaxe</h4>
-                        <p class="desc">Lets you mine STONE!</p>
-                        <p class="tier">T1</p>
-                    </div>
-                    <div class="price">15$</div>
-                </li>
-            </ul>
+        {% if name %}
+        <img src="static/img/profile.png" alt="access profile by clicking up">
+        {% endif %}
+    </section>
+    <main>
+        <br>
+        <h2>Ak chceš hrať musíš sa <a href="/register">registrovať!</a></h2>
+        <div class="content">
+            <p>Ak sa pýtaš, Načo vôbec toto robíš??</p>
+            <p>Preto lebo tento projekt je ako môj final project v kurze CS50x</p>
         </div>
+        <h2>Ak si už registrovaný klikni na tlačidlo dole!</h2>
+        <a href="/game"><button>¡Excavar!</button></a>
     </main>
-    <br>
-    <button class="functional">Save Progress</button>
-    <br>
-    <button class="functional">Restart Game</button>
-    <script src="static/js.js" type="module"></script>
+    <script>
+        const list = ["white", "red", "blue", "lime", "yellow", "orange", "green"]
+        var i = 0
+        setInterval(() => {
+            i = i > 6 ? 0 : i + 1
+            document.querySelector(".welcome").style.color = list[i];
+        }, 500);
+    </script>
 </body>
-</html>
+
+{% endblock %}
