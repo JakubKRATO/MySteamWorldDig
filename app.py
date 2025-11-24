@@ -76,7 +76,7 @@ def login():
         else:
             return {"status" : "wrong password"}, 401
 
-        return {"status" : "ok"}, 200
+        return {"status" : "ok"}
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -96,7 +96,7 @@ def register():
         hash = generate_password_hash(password)
         # check if user with this name exists
         # write to db
-        print("Gonna register a new user!")
+        print("Gonna register a new user! " + nick)
         try:
             db.execute("INSERT INTO users (nickname, password) VALUES (%s,%s);", (nick, hash))
         except Exception:
