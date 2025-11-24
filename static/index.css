@@ -53,6 +53,7 @@ body {
     right: 80px;
     font-size: 2.5rem;
     animation: rotate 2s linear infinite;
+    cursor: pointer;
 }
 .main {
     font-size: 1.5rem;
