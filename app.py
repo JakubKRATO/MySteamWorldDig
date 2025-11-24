@@ -17,6 +17,9 @@ connection = mysql.connector.connect(
 )
 db = connection.cursor()
 
+print(os.getenv("MYSQLHOST"))
+print(os.getenv("MYSQLPASSWORD"))
+print(os.getenv("MYSQLPORT"))
 @app.route("/")
 def index():
     if not session.get("name"):
