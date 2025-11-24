@@ -20,11 +20,11 @@ db = connection.cursor()
 
 @app.route("/start-run")
 def startRun():
-    worldId = uuid.uuid4()
+    worldId = str(uuid.uuid4())
     db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
     connection.commit()
 
-    return {"uuid": str(worldId)}
+    return {"uuid": worldId}
 
 @app.route("/end-run", methods=["POST"])
 def endRun():
