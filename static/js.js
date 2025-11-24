@@ -1378,7 +1378,7 @@ const endgame = async (ending) => {
         body: JSON.stringify(data)
     });
     const ans = await message.json()
-    if (message["status"] == "cheater") {
+    if (ans["status"] == "cheater") {
         alert("cheater. No rewards.")
     }
 };
