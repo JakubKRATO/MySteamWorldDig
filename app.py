@@ -9,17 +9,20 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "e4a9c3d7f12b48c6a97d53e2c49fb01d6a8e3f4c29bd7150f93a2ce8d674b2af"
 
-connection = mysql.connector.connect(
-    host=os.getenv("MYSQLHOST"),
-    user="root",
-    password=os.getenv("MYSQLPASSWORD"),
-    database="jakubland",
-    port=os.getenv("MYSQLPORT")
-)
-db = connection.cursor()
+def activate_db():
+    connection = mysql.connector.connect(
+        host=os.getenv("MYSQLHOST"),
+        user="root",
+        password=os.getenv("MYSQLPASSWORD"),
+        database="jakubland",
+        port=os.getenv("MYSQLPORT")
+    )
+    db = connection.cursor()
+    return connection, db
 
 @app.route("/start-run")
 def startRun():
+    connection, db = activate_db()
     worldId = str(uuid.uuid4())
     db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
     connection.commit()
@@ -28,6 +31,7 @@ def startRun():
 
 @app.route("/end-run", methods=["POST"])
 def endRun():
+    connection, db = activate_db()
     data = request.get_json()
 
     worldId = data.get("uuid")
@@ -70,6 +74,7 @@ def game():
 
 @app.route("/profile")
 def profile():
+    connection, db = activate_db()
     if not session.get("name"):
         return redirect("/login")
     
@@ -77,6 +82,7 @@ def profile():
 
 @app.route("/leaderboards")
 def leaderboards():
+    connection, db = activate_db()
     return render_template("leaderboards.html")
 
 @app.route("/tutorial")
@@ -85,6 +91,7 @@ def tutorial():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    connection, db = activate_db()
     if request.method == "GET":
         return render_template("login.html")
     else:
@@ -117,6 +124,7 @@ def login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    connection, db = activate_db()
     if request.method == "GET":
         return render_template("register.html")
     else:
