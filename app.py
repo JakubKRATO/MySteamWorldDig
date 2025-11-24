@@ -1,4 +1,5 @@
 import os
+import uuid
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from flask import Flask, render_template, request, redirect, session
@@ -16,6 +17,42 @@ connection = mysql.connector.connect(
     port=os.getenv("MYSQLPORT")
 )
 db = connection.cursor()
+
+@app.route("/start-run")
+def startRun():
+    worldId = uuid.uuid4()
+    db.execute("INSERT INTO games (world_id,completed) VALUES (%s, 0);", (worldId,))
+    connection.commit()
+
+    return {"uuid": worldId}
+
+@app.route("/end-run", methods=["POST"])
+def endRun():
+    data = request.get_json()
+
+    worldId = data.get("uuid")
+    tnt = data.get("tnt")
+    money = data.get("money")
+    time = data.get("time")
+
+    # Checks if the game has already been completed
+    db.execute("SELECT completed FROM games WHERE world_id = %s;",(worldId,))
+    rows = db.fetchone()
+    if rows[0] == 1 or not rows:
+        return {"status": "cheater"}
+    
+    db.execute("UPDATE games SET tnt = %s, money = %s, time = %s, completed = 1 WHERE world_id = %s", (tnt, money, time, worldId))
+    connection.commit()
+
+    # increment user's total wins
+    db.execute("SELECT wins FROM users WHERE id = %s;", (session["user_id"],))
+    rows = db.fetchone()
+    
+    n = rows[0] + 1
+
+    db.execute("UPDATE user SET wins = %s WHERE id = %s;", (n, session["user_id"]))
+
+    return {"status" : "ok"}
 
 @app.route("/")
 def index():

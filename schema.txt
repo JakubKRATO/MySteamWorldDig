@@ -13,5 +13,6 @@ CREATE TABLE games (
     tnt INT NOT NULL,
     money INT NOT NULL,
     time INT NOT NULL,
+    completed INT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 )

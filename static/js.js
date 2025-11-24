@@ -296,7 +296,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0,
+    money: 999,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
@@ -350,7 +350,7 @@ const main = () => {
     
 }
 
-const generateWorld = () => {
+const generateWorld = async () => {
     for (let y = 0; y < MAX_Y; y++) {
         world.push([]);
         for (let x = 0; x < MAX_X; x++) {
@@ -442,6 +442,15 @@ const generateWorld = () => {
     // Generating JAKUB
     generateJakub()
     generateJakub()
+    const result = await fetch("/start-run");
+    const data = await result.json()
+    const uuid = data.uuid
+    if (!uuid) {
+        alert("Error generating UUID (world unique identificator)")
+        window.location.reload()
+        return
+    }
+    localStorage.setItem("uuid", uuid)
 };
 const updateWorld = () => {
     for (let y = 0; y < MAX_Y; y++) {
@@ -1357,6 +1366,17 @@ const endgame = async (ending) => {
         await sleep(1000)
         canvas.fillText(`Použité dynamity: ${tntUses}`, game.width / 2, game.height / 2 + 250);
     }
+    const data = {
+        uuid: localStorage.getItem("uuid"),
+        tnt: tntUses,
+        money: totalMoney,
+        time: temptotalPlayTime
+    }
+    await fetch("/end-run",{
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify(data)
+    });
 };
 const setColor = (color) => {
     canvas.fillStyle = color
