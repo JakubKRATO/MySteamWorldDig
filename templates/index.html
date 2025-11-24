@@ -7,7 +7,6 @@
 
 {% block body %}
 
-<body>
     <h1>NOTE: THE BACKEND IS NOT WORKING NOW. PLEASE STAND BY . . .</h1>
     {% if name %}
     <a href="/profile"><h2 class="welcome">Vitaj, {{ name }}</h2></a>
@@ -43,6 +42,5 @@
             document.querySelector(".welcome").style.color = list[i];
         }, 500);
     </script>
-</body>
 
 {% endblock %}

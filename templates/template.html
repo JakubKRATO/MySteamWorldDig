@@ -5,8 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block title %}
     {% endblock %}
+    <link rel="stylesheet" href="static/index.css">
     <link rel="stylesheet" href="static/game.css">
 </head>
-{% block body %}
-{% endblock %}
+<body>
+    <nav>
+        <ul>
+            <a href="/">
+                <li>Domov</li>
+            </a>
+            <a href="/leaderboards">
+                <li>Leaderboards</li>
+            </a>
+            <a href="/tutorial">
+                <li>Tutorial</li>
+            </a>
+            <a href="/login">
+                <li>Login</li>
+            </a>
+            <a href="/register">
+                <li>Register</li>
+            </a>
+        </ul>
+    </nav>
+    {% block body %}
+    {% endblock %}
+</body>
 </html>

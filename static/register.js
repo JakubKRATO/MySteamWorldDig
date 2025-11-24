@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded",() => {
             nick: document.querySelector("input").value,
             password: document.querySelectorAll("input")[1].value
         }
-        const result = await fetch("/login", {
+        const result = await fetch("/register", {
             method: "POST",
             headers: { "Content-type" : "application/json" },
             body: JSON.stringify(data)
@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded",() => {
             window.location.href = "/"
         } else if (res.status == "duplicite") {
             document.querySelector("input").style.outline = "2px solid red";
+            alert("Použivatel s tymto menom už existuje!")
         }
     });
 });
