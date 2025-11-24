@@ -1372,11 +1372,15 @@ const endgame = async (ending) => {
         money: totalMoney,
         time: temptotalPlayTime
     }
-    await fetch("/end-run",{
+    const message = await fetch("/end-run",{
         method: "POST",
         headers: {"Content-type": "application/json"},
         body: JSON.stringify(data)
     });
+    const ans = await message.json()
+    if (message["status"] == "cheater") {
+        alert("cheater. No rewards.")
+    }
 };
 const setColor = (color) => {
     canvas.fillStyle = color
