@@ -58,6 +58,8 @@ body {
     font-size: 1.5rem;
 }
 nav ul {
+    padding: 0;
+    margin: 20px 0 0 0;
     list-style-type: none;
     display: flex;
     justify-content: center;
@@ -76,4 +78,10 @@ nav a:hover {
 }
 nav li:hover {
     color: chartreuse;
+}
+
+@media screen and (max-width: 500px) {
+    nav li {
+        font-size: 1rem;
+    }
 }
