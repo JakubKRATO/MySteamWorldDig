@@ -55,7 +55,7 @@ def endRun():
     
     n = rows[0] + 1
 
-    db.execute("UPDATE user SET wins = %s WHERE id = %s;", (n, session["user_id"]))
+    db.execute("UPDATE users SET wins = %s WHERE id = %s;", (n, session["user_id"]))
 
     connection.close()
     return {"status" : "ok"}
