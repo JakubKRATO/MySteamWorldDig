@@ -27,6 +27,7 @@ def startRun():
     db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
     connection.commit()
 
+    connection.close()
     return {"uuid": worldId}
 
 @app.route("/end-run", methods=["POST"])
@@ -56,6 +57,7 @@ def endRun():
 
     db.execute("UPDATE user SET wins = %s WHERE id = %s;", (n, session["user_id"]))
 
+    connection.close()
     return {"status" : "ok"}
 
 @app.route("/")
@@ -78,11 +80,13 @@ def profile():
     if not session.get("name"):
         return redirect("/login")
     
+    connection.close()
     return render_template("profile.html")
 
 @app.route("/leaderboards")
 def leaderboards():
     connection, db = activate_db()
+    connection.close()
     return render_template("leaderboards.html")
 
 @app.route("/tutorial")
@@ -91,7 +95,6 @@ def tutorial():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    connection, db = activate_db()
     if request.method == "GET":
         return render_template("login.html")
     else:
@@ -103,13 +106,16 @@ def login():
             return render_template("chyba.html", message="Nezadal si heslo!")
         
         # get pass from db
+        connection, db = activate_db()
         try:
             db.execute("SELECT id,password FROM users WHERE nickname = %s;", (data.get("nick"),))
             userData = db.fetchone()
         except Exception:
+            connection.close()
             return render_template("chyba.html", message="Neočakávaná chyba... chyba je na mojej strane ale... napíš mi asi?")
 
         if userData is None:
+            connection.close()
             return {"status" : "no account"}, 401
         
         # compare
@@ -118,13 +124,13 @@ def login():
             session["name"] = data.get(("nick"))
             session["user_id"] = userData[0]
         else:
+            connection.close()
             return {"status" : "wrong password"}, 401
-
+        connection.close()
         return {"status" : "ok"}
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    connection, db = activate_db()
     if request.method == "GET":
         return render_template("register.html")
     else:
@@ -142,12 +148,15 @@ def register():
         # check if user with this name exists
         # write to db
         print("Gonna register a new user! " + nick)
+        connection, db = activate_db()
         try:
             db.execute("INSERT INTO users (nickname, password) VALUES (%s,%s);", (nick, hash))
         except Exception:
+            connection.close()
             return {"status" : "duplicite"}
         
         connection.commit()
+        connection.close()
         return {"status" : "ok"}
 
 @app.route("/logout")
