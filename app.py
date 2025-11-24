@@ -28,7 +28,11 @@ def profile():
     if not session.get("name"):
         return redirect("/login")
     
-    return render_template("game.html")
+    return render_template("profile.html")
+
+@app.route("/leaderboards")
+def leaderboards():
+    return render_template("leaderboards.html")
 
 @app.route("/tutorial")
 def tutorial():
