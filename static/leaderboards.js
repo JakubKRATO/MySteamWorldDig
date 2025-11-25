@@ -31,10 +31,10 @@ document.addEventListener("DOMContentLoaded",() => {
     });
 });
 const render = (data) => {
-    count = 1
+    var count = 1
     document.querySelector("tbody").innerHTML = ''
-
     for (let row of data) {
+        var index = 0
         let tr = document.createElement("tr");
         let place = document.createElement("td");
 
@@ -44,13 +44,23 @@ const render = (data) => {
 
         for (let cell of row) {
             let td = document.createElement("td");
-            td.innerHTML = cell;
+            td.innerHTML = index == 1 ? calcTime(cell) : cell;
             tr.appendChild(td);
+            index++;
         }
         document.querySelector("tbody").appendChild(tr);
     }
 };
 const calcTime = (time) => {
     time = parseInt(time)
-    minutes = time / 1000
+    hours = Math.floor(time / 1000 / 60 / 60)
+    minutes = Math.floor(time / 1000 / 60)
+    seconds = Math.floor(time / 1000)
+    
+    if (hours > 0) {
+        return `${hours}h ${minutes}m ${seconds}s`
+    } else if (minutes > 0) {
+        return `${minutes}m ${seconds}s`
+    }
+    return `${seconds}s`
 };
