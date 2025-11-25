@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded",() => {
                     body: JSON.stringify({"type" : string})
                 })
                 data[string] = await result.json()
+                console.log("Got data from server...");
             }
             render(data[string])
         });
