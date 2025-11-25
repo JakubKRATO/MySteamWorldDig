@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded",() => {
     const menu = document.querySelector(".leaderboards-menu")
     Array.from(menu.children).forEach(element => {
         element.addEventListener("click", async () => {
+            document.querySelector("tbody").innerHTML = ''
             Array.from(menu.children).forEach(li => {
                 li.className = ""
             });
@@ -64,3 +65,13 @@ const calcTime = (time) => {
     }
     return `${seconds}s`
 };
+const main = async () => {
+    const ans = await fetch("/get-leaderboards", {
+        method: "POST",
+        headers: {"Content-type" : "application/json"},
+        body: JSON.stringify({"type" : "time"})
+    })
+    data["time"] = await ans.json()
+    render(data["time"])
+};
+main();
