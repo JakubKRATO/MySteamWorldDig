@@ -31,13 +31,26 @@ document.addEventListener("DOMContentLoaded",() => {
     });
 });
 const render = (data) => {
+    count = 1
+    document.querySelector("tbody").innerHTML = ''
+
     for (let row of data) {
-        let tr = document.createElement("tr")
+        let tr = document.createElement("tr");
+        let place = document.createElement("td");
+
+        place.innerHTML = count;
+        tr.appendChild(place)
+        count++;
+
         for (let cell of row) {
-            let td = document.createElement("td")
-            td.innerHTML = cell
-            tr.appendChild(td)
+            let td = document.createElement("td");
+            td.innerHTML = cell;
+            tr.appendChild(td);
         }
-        document.querySelector("tbody").appendChild(tr)
+        document.querySelector("tbody").appendChild(tr);
     }
+};
+const calcTime = (time) => {
+    time = parseInt(time)
+    minutes = time / 1000
 };
