@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "e4a9c3d7f12b48c6a97d53e2c49fb01d6a8e3f4c29bd7150f93a2ce8d674b2af"
 
 def activate_db():
@@ -85,9 +86,27 @@ def profile():
 
 @app.route("/leaderboards")
 def leaderboards():
-    connection, db = activate_db()
-    connection.close()
     return render_template("leaderboards.html")
+
+@app.route("/get-leaderboards", methods=["POST"])
+def getLeaderboards():
+    connection, db = activate_db()
+    data = request.get_json()
+    type = data["type"]
+
+    match type:
+        case "cash":
+            db.execute("SELECT nickname, games.time, money, tnt, timestamp FROM games JOIN users ON games.user_id = users.id WHERE completed = 1 ORDER BY money DESC;")
+        case "time":
+            db.execute("SELECT nickname, games.time, money, tnt, timestamp FROM games JOIN users ON games.user_id = users.id WHERE completed = 1 ORDER BY time;")
+        case "tnt":
+            db.execute("SELECT nickname, games.time, money, tnt, timestamp FROM games JOIN users ON games.user_id = users.id WHERE completed = 1 ORDER BY tnt;")
+        
+    rows = db.fetchall()
+
+    return rows
+
+
 
 @app.route("/tutorial")
 def tutorial():

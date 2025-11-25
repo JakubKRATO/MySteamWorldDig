@@ -10,9 +10,10 @@ CREATE TABLE games (
     id INT AUTO_INCREMENT PRIMARY KEY,
     world_id varchar(255) NOT NULL UNIQUE,
     user_id INT NOT NULL,
-    tnt INT,
-    money INT,
     time INT,
+    money INT,
+    tnt INT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     completed INT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 )

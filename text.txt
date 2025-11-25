@@ -105,7 +105,3 @@
 TODO:
 achviementy - tied na localhost 
     - funkcia getAchvievement() by bola tam kde sa orecko dava do inventara (achviementy za new ore found) + nejake ine co by si chcel dat
-login page
-register page
-leaderboards page
-kazdy run bude mat svoje uuid a po hre sa bude dat submitnut
