@@ -50,13 +50,16 @@ const render = (data) => {
                 case 1:
                     td.innerHTML = calcTime(cell)
                     break;
-                case 5:
+                case 4:
                     let raw = new Date(cell)
                     let formatted = raw.toLocaleString("sk-Sk", {
                         dateStyle: "short",
                         timeStyle: "short"
                     })
                     td.innerHTML = formatted
+                    break;
+                default:
+                    td.innerHTML = cell
             }
             tr.appendChild(td);
             index++;
