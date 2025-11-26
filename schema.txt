@@ -4,6 +4,7 @@ CREATE TABLE users (
     password TEXT NOT NULL,
     coins INT DEFAULT 0,
     xp INT DEFAULT 0,
+    wins INT DEFAULT 0,
     time DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 CREATE TABLE games (

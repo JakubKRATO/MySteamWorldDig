@@ -47,6 +47,10 @@ const render = (data) => {
         for (let cell of row) {
             let td = document.createElement("td");
             switch (index) {
+                case 0:
+                    let a = `<a href="/profile/${cell}" target="_blank">${cell}</a>`
+                    td.innerHTML = a
+                    break;
                 case 1:
                     td.innerHTML = calcTime(cell)
                     break;

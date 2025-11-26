@@ -79,13 +79,12 @@ def game():
 def profile(profile):
     connection, db = activate_db()
 
-    db.execute("")
+    db.execute("SELECT nickname, coins, xp, wins FROM users WHERE nickname = %s;", (profile,))
 
-    if not session.get("name"):
-        return redirect("/login")
-    
+    data = db.fetchall()
+
     connection.close()
-    return render_template("profile.html")
+    return render_template("profile.html", data=data[0])
 
 @app.route("/leaderboards")
 def leaderboards():

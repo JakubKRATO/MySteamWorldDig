@@ -1,0 +1,45 @@
+body {
+    margin-left: 50px;
+}
+main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.username {
+    display: flex;
+    gap: 15px;
+}
+.username img {
+    width: 60px;
+}
+ul {
+    padding: 0;
+    margin: 0 0 0 50px;
+}
+li {
+    font-size: 1.3rem;
+}
+li img {
+    width: 20px;
+}
+.wins {
+    transform: translateY(-25px);
+    margin-left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.wins img {
+    width: 35px;
+}
+.wins p {
+    margin: 0;
+    font-size: 2rem;
+}
+
+@media screen and (max-width: 440px) {
+    h1 {
+        font-size: 2rem;
+    }
+}

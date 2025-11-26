@@ -19,7 +19,6 @@ ul.leaderboards-menu li.active {
     background-color: rgb(51, 51, 51);
     border-bottom: 2px solid chartreuse;
 }
-
 table {
     border-spacing: 0px;
     font-size: 1.5rem;
@@ -33,4 +32,7 @@ th,td {
 }
 tr:nth-child(odd) {
     background-color: rgb(25, 25, 25);
+}
+table a {
+    color: chartreuse;
 }

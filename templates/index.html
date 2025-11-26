@@ -2,13 +2,12 @@
 
 {% block title %} 
     <title>Hlavná stránka</title> 
-    <link rel="stylesheet" href="static/index.css">
 {% endblock %}
 
 {% block body %}
 
     {% if name %}
-    <a href="/profile"><h2 class="welcome">Vitaj, {{ name }}</h2></a>
+    <a href="/profile/{{ name }}" target="_blank"><h2 class="welcome">Vitaj, {{ name }}</h2></a>
     {% endif %}
     
     <section class="hero">
@@ -21,7 +20,7 @@
             </p>
         </div>
         {% if name %}
-        <img src="static/img/profile.png" alt="access profile by clicking up">
+        <img src="/static/img/profile.png" alt="access profile by clicking up">
         {% endif %}
     </section>
     <main>
