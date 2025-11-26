@@ -46,7 +46,18 @@ const render = (data) => {
 
         for (let cell of row) {
             let td = document.createElement("td");
-            td.innerHTML = index == 1 ? calcTime(cell) : cell;
+            switch (index) {
+                case 1:
+                    td.innerHTML = calcTime(cell)
+                    break;
+                case 5:
+                    let raw = new Date(cell)
+                    let formatted = raw.toLocaleString("sk-Sk", {
+                        dateStyle: "short",
+                        timeStyle: "short"
+                    })
+                    td.innerHTML = formatted
+            }
             tr.appendChild(td);
             index++;
         }
