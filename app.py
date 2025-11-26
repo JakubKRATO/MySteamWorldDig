@@ -75,9 +75,12 @@ def game():
     
     return render_template("game.html")
 
-@app.route("/profile")
-def profile():
+@app.route("/profile/<profile>")
+def profile(profile):
     connection, db = activate_db()
+
+    db.execute("")
+
     if not session.get("name"):
         return redirect("/login")
     
@@ -96,11 +99,14 @@ def getLeaderboards():
 
     match type:
         case "cash":
-            db.execute("SELECT nickname, games.time, money, tnt, timestamp FROM games JOIN users ON games.user_id = users.id WHERE completed = 1 ORDER BY money DESC;")
+            # I know it doesn't look believable but I ACTUALLY wrote this query!
+            db.execute("SELECT u.nickname, g.time, g.money, g.tnt, g.timestamp FROM games AS g JOIN users AS u ON g.user_id = u.id JOIN (SELECT user_id, MAX(money) as best_money FROM games GROUP BY user_id) AS secondTable ON g.user_id = secondTable.user_id AND g.money = secondTable.best_money ORDER BY g.money DESC;")
         case "time":
-            db.execute("SELECT nickname, games.time, money, tnt, timestamp FROM games JOIN users ON games.user_id = users.id WHERE completed = 1 ORDER BY time;")
+            # this query was written by AI (yes i feel ashamed)
+            db.execute("SELECT u.nickname, g.time, g.money, g.tnt, g.timestamp FROM games g JOIN users u ON g.user_id = u.id JOIN (SELECT user_id, MIN(time) AS best_time FROM games WHERE completed = 1 GROUP BY user_id ) b ON g.user_id = b.user_id AND g.time = b.best_time WHERE g.completed = 1 ORDER BY g.time;")
         case "tnt":
-            db.execute("SELECT nickname, games.time, money, tnt, timestamp FROM games JOIN users ON games.user_id = users.id WHERE completed = 1 ORDER BY tnt;")
+            # this query was easy I just changed the cash query a bit and voila!
+            db.execute("SELECT u.nickname, g.time, g.money, g.tnt, g.timestamp FROM games AS g JOIN users AS u ON g.user_id = u.id JOIN (SELECT user_id, MIN(tnt) as best_tnt FROM games GROUP BY user_id) AS secondTable ON g.user_id = secondTable.user_id AND g.tnt = secondTable.best_tnt ORDER BY g.tnt;")
         
     rows = db.fetchall()
 

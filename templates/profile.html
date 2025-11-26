@@ -5,7 +5,20 @@
 {% endblock %}
 
 {% block body %}
-
-<h1>COmming soon!</h1>
+<div class="username">
+    <img src="static/img/profilePic.svg" alt="profile">
+    <h1>{{ data.nickname }}</h1>
+</div>
+<h2>Stats</h2>
+<ul>
+    <li>Best time: {{ data.bestTime }}</li>
+    <li>Best cash:  {{ data.bestCash }}</li>
+    <li>Best tnt: {{ data.bestTnt }}</li>
+</ul>
+<h3>Resources:</h3>
+<ul>
+    <li>{{ data.coins }}¢</li>
+    <li>{{ data.xp }} XP</li>
+</ul>
 
 {% endblock %}
