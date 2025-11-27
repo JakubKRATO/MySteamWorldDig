@@ -72,10 +72,11 @@ const render = (data) => {
     }
 };
 const calcTime = (time) => {
-    time = parseInt(time)
-    hours = Math.floor(time / 1000 / 60 / 60)
-    minutes = Math.floor(time / 1000 / 60)
-    seconds = Math.floor(time / 1000)
+    const totalSeconds = time / 1000
+
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor(totalSeconds / 60 % 60)
+    const seconds = Math.floor(totalSeconds % 60)
     
     if (hours > 0) {
         return `${hours}h ${minutes}m ${seconds}s`

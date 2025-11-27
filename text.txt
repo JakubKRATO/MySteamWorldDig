@@ -105,12 +105,12 @@
 REWARD SYSTEM:
 #################
 
-XP: cash - 1000
-COINS: 
+XP: // TODO dokumentacia
+COINS: ???
 WINS: 1
 
 
 
 TODO:
-achviementy - tied na localhost 
+achviementy
     - funkcia getAchvievement() by bola tam kde sa orecko dava do inventara (achviementy za new ore found) + nejake ine co by si chcel dat
