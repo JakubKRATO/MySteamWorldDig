@@ -102,6 +102,15 @@
 
 999 BEDROCK
 
+REWARD SYSTEM:
+#################
+
+XP: cash - 1000
+COINS: 
+WINS: 1
+
+
+
 TODO:
 achviementy - tied na localhost 
     - funkcia getAchvievement() by bola tam kde sa orecko dava do inventara (achviementy za new ore found) + nejake ine co by si chcel dat
