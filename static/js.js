@@ -1379,9 +1379,10 @@ const endgame = async (ending) => {
     });
     const ans = await message.json()
     if (ans["status"] == "cheater") {
-        alert("cheater. No rewards.")
+        alert("This run was already completed. No rewards gained.")
     } else {
-        
+        // reward player
+        const result = await fetch("/reward-player",)
     }
 };
 const setColor = (color) => {

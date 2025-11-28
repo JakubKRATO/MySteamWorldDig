@@ -26,15 +26,21 @@ const calcXP = (time, money, tnt) => {
 document.addEventListener("DOMContentLoaded",async () => {
     await sleep(1000)
     const dataContainer = document.querySelector("#data")
-    const time = parseInt(dataContainer.attributes["data-time"])
-    const money = parseInt(dataContainer.attributes["data-money"])
-    const tnt = parseInt(dataContainer.attributes["data-tnt"])
+    const time = parseInt(dataContainer.attributes["data-time"].value)
+    const money = parseInt(dataContainer.attributes["data-money"].value)
+    const tnt = parseInt(dataContainer.attributes["data-tnt"].value)
+    const XPdisplay = document.querySelector(".xp")
 
     const XP = calcXP(time, money, tnt)
-
+    console.log(time, money, tnt)
     console.log(`XP is ${XP}`);
     for (let i = 0;i < XP + 1; i++) {
-        document.querySelector(".xp").innerHTML = `+ ${i} XP`
+        XPdisplay.innerHTML = `+ ${i} XP`
+        XPdisplay.style.scale = "1"
+        await sleep(100)
+        XPdisplay.style.scale = "1.1"
+        await sleep(100)
+
     }
     
     document.querySelector("h2").innerHTML = "Congrats!"

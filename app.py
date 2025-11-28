@@ -1,5 +1,6 @@
 import os
 import uuid
+import math
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from flask import Flask, render_template, request, redirect, session
@@ -7,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-# app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "e4a9c3d7f12b48c6a97d53e2c49fb01d6a8e3f4c29bd7150f93a2ce8d674b2af"
 
 def activate_db():
@@ -48,7 +49,6 @@ def endRun():
         return {"status": "cheater"}
     
     db.execute("UPDATE games SET tnt = %s, money = %s, time = %s, completed = 1 WHERE world_id = %s", (tnt, money, time, worldId))
-    connection.commit()
 
     # increment user's total wins
     db.execute("SELECT wins FROM users WHERE id = %s;", (session["user_id"],))
@@ -58,6 +58,9 @@ def endRun():
 
     db.execute("UPDATE users SET wins = %s WHERE id = %s;", (n, session["user_id"]))
 
+    # UPDATE USE XP HERE # TODO
+    
+    connection.commit()
     connection.close()
     return {"status" : "ok"}
 
@@ -211,3 +214,35 @@ if __name__ == "__main__":
     debugMode = os.getenv("debug")
     print(f"Server running on port {port}")
     app.run(host="0.0.0.0",debug=debugMode,port=port)
+
+# Calculate xp
+def calcXP(time, money, tnt):
+    totalSeconds = time / 1000
+    minutes = math.floor(totalSeconds / 60)
+
+    # get XP from money
+    xp = money - 1000
+    if xp < 1:
+        xp = 2
+    else:
+        xp = math.ceil(xp / 100)
+    
+    # get XP from time
+    xp = xp + math.floor(minutes / 25)
+
+    # get XP from tnt
+    tnt_reward = 0
+    if tnt < 70:
+        tnt_reward = 5
+    elif tnt < 100:
+        tnt_reward = 4
+    elif tnt < 125:
+        tnt_reward = 3
+    elif tnt < 150:
+        tnt_reward = 2
+    else:
+        tnt_reward = 1
+
+    xp += tnt_reward
+    return xp
+    

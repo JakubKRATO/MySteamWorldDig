@@ -2,6 +2,12 @@
 
 {% block title %} 
     <title>Game Summary</title> 
+    <style>
+        .xp {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -12,6 +18,8 @@
 <h3 class="xp"></h3>
 <br>
 <h2></h2>
+<br><br>
+<a href="/leaderboards"><button>To leaderboards</button></a>
 <script src="/static/summary.js"></script>
 
 {% endblock %}
