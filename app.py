@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.config["TEMPLATES_AUTO_RELOAD"] = True
+# app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "e4a9c3d7f12b48c6a97d53e2c49fb01d6a8e3f4c29bd7150f93a2ce8d674b2af"
 
 def activate_db():
@@ -74,6 +74,23 @@ def game():
         return redirect("/login")
     
     return render_template("game.html")
+
+@app.route("/summary")
+def summary():
+    world_id = request.args.get("world_id")
+    if not world_id:
+        return redirect("/login")
+
+    connection, db = activate_db()
+
+    db.execute("SELECT time, money, tnt FROM games WHERE world_id = %s;", (world_id,))
+
+    data = db.fetchone()
+    if not data:
+        render_template("chyba.html", message="Internal server error - no game data found")
+    print("printing data: ")
+    print(data)
+    return render_template("summary.html", data=data)
 
 @app.route("/profile/<profile>")
 def profile(profile):

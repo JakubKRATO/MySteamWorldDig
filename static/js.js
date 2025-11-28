@@ -1380,6 +1380,8 @@ const endgame = async (ending) => {
     const ans = await message.json()
     if (ans["status"] == "cheater") {
         alert("cheater. No rewards.")
+    } else {
+        
     }
 };
 const setColor = (color) => {
