@@ -3,23 +3,28 @@
 {% block title %} 
     <title>Game Summary</title> 
     <style>
-        .xp {
+        .xp, .coins {
             font-size: 3rem;
             margin: 10px 0;
+        }
+        img {
+            width: 25px;
         }
     </style>
 {% endblock %}
 
 {% block body %}
 <br><br>
-<div id="data" data-time="{{ data[0] }}" data-money="{{ data[1] }}" data-tnt="{{ data[2] }}"></div>
+<div id="data" data-time="{{ data[0] }}" data-money="{{ data[1] }}" data-tnt="{{ data[2] }}" data-coins="{{ coins }}"></div>
 <h1>Game summary: </h1>
 
 <h3 class="xp"></h3>
 <br>
+<h3 class="coins"></h3>
+<br><br>
 <h2></h2>
 <br><br>
-<a href="/leaderboards"><button>To leaderboards</button></a>
+<a href="/leaderboards" class="exit" style="visibility: hidden;"><button>To leaderboards</button></a>
 <script src="/static/summary.js"></script>
 
 {% endblock %}

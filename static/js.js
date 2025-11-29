@@ -1366,6 +1366,9 @@ const endgame = async (ending) => {
         await sleep(1000)
         canvas.fillText(`Použité dynamity: ${tntUses}`, game.width / 2, game.height / 2 + 250);
     }
+    console.log("Game ended. wait 5s")
+    await sleep(3000)
+    console.log("Game ended for good. saving. . .")
     const data = {
         uuid: localStorage.getItem("uuid"),
         tnt: tntUses,
@@ -1379,10 +1382,11 @@ const endgame = async (ending) => {
     });
     const ans = await message.json()
     if (ans["status"] == "cheater") {
-        alert("This run was already completed. No rewards gained.")
+        alert("This run was already completed. No rewards gained.");
+        window.location.href = `/leaderboards`
     } else {
-        // reward player
-        const result = await fetch("/reward-player",)
+        let coins = ans["coins"]
+        window.location.href = `/summary?world_id=${data.uuid}&coins=${coins}`
     }
 };
 const setColor = (color) => {

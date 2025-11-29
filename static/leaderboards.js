@@ -28,11 +28,16 @@ document.addEventListener("DOMContentLoaded",() => {
                 data[string] = await result.json()
                 console.log("Got data from server...");
             }
-            render(data[string])
+            if (string == "wins") {
+                document.querySelector("table").innerHTML = winsTable
+            } else {
+                document.querySelector("table").innerHTML = normalTable
+            }
+            render(data[string], string)
         });
     });
 });
-const render = (data) => {
+const render = (data, string) => {
     var count = 1
     document.querySelector("tbody").innerHTML = ''
     for (let row of data) {
@@ -52,6 +57,10 @@ const render = (data) => {
                     td.innerHTML = a
                     break;
                 case 1:
+                    if (string == "wins") {
+                        td.innerHTML = cell;
+                        break;
+                    }
                     td.innerHTML = calcTime(cell)
                     break;
                 case 4:
@@ -95,3 +104,27 @@ const main = async () => {
     render(data["time"])
 };
 main();
+
+const normalTable = `<thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Time</th>
+            <th>Money</th>
+            <th>TNT</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+    </tbody>`
+const winsTable = `<thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Wins</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+    </tbody>`

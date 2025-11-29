@@ -29,8 +29,9 @@ document.addEventListener("DOMContentLoaded",async () => {
     const time = parseInt(dataContainer.attributes["data-time"].value)
     const money = parseInt(dataContainer.attributes["data-money"].value)
     const tnt = parseInt(dataContainer.attributes["data-tnt"].value)
+    const coins = parseInt(dataContainer.attributes["data-coins"].value)
     const XPdisplay = document.querySelector(".xp")
-
+    const COINSdisplay = document.querySelector(".coins") 
     const XP = calcXP(time, money, tnt)
     console.log(time, money, tnt)
     console.log(`XP is ${XP}`);
@@ -40,10 +41,17 @@ document.addEventListener("DOMContentLoaded",async () => {
         await sleep(100)
         XPdisplay.style.scale = "1.1"
         await sleep(100)
-
+    }
+    for (let i = 0;i < coins + 1; i++) {
+        COINSdisplay.innerHTML = `${i} <img src="/static/img/coin.svg" alt="">`
+        COINSdisplay.style.scale = "1"
+        await sleep(100)
+        COINSdisplay.style.scale = "1.1"
+        await sleep(100)
     }
     
     document.querySelector("h2").innerHTML = "Congrats!"
+    document.querySelector(".exit").style.visibility = "visible" 
     var i = 0;
     setInterval(() => {
         i = i > 6 ? 0 : i + 1
