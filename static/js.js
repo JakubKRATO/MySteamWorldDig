@@ -296,7 +296,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0,
+    money: 999,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
@@ -317,13 +317,13 @@ var moveCooldown = 0.5;
 var keys = {}
 var gameloop;
 
-const main = () => {
+const main = async () => {
     document.getElementsByTagName("main")[0].style.display = "none";
     startButton.innerHTML = "Back to game";
 
     if (!localStorage.getItem("world")) {
         console.log("Generating new world...")
-        generateWorld();
+         await generateWorld();
     } else {
         world = JSON.parse(localStorage.getItem("world"))
     }
@@ -445,7 +445,7 @@ const generateWorld = async () => {
     const result = await fetch("/start-run");
     const data = await result.json()
     const uuid = data.uuid
-    if (!uuid) {
+    if (!uuid || data["ans"] == "error") {
         alert("Error generating UUID (world unique identificator)")
         window.location.reload()
         return

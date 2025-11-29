@@ -58,7 +58,10 @@ def calcXP(time, money, tnt):
 def startRun():
     connection, db = activate_db()
     worldId = str(uuid.uuid4())
-    db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
+    try:
+        db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
+    except Exception:
+        return {"uuid": None, "ans" : "error"}
     connection.commit()
 
     connection.close()
@@ -79,6 +82,7 @@ def endRun():
     # Checks if the game has already been completed
     db.execute("SELECT completed FROM games WHERE world_id = %s;",(worldId,))
     rows = db.fetchone()
+    print(rows)
     if rows[0] == 1 or not rows:
         return {"status": "cheater"}
     
