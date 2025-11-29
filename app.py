@@ -58,6 +58,8 @@ def calcXP(time, money, tnt):
 def startRun():
     connection, db = activate_db()
     worldId = str(uuid.uuid4())
+
+    print(session["user_id"])
     try:
         db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
     except Exception:
