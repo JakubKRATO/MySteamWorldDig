@@ -31,5 +31,5 @@ const calcTime = (time) => {
 };
 
 
-console.log(calcXP(1558744, 929, 53))
+// console.log(calcXP(3085386, 3422, 115))
 // console.log(calcTime(9876543))
