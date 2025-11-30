@@ -13,7 +13,7 @@ const MAX_Y = 25;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = false
+const DISABLE_DARKNESS = true
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -373,8 +373,25 @@ const generateWorld = async () => {
 };
 
 const room1 = () => {
+    // Helper to create a 2x2 teleport square
+    const makeTeleportSquare = (tx, ty, targetX, targetY) => {
+        const cells = [
+            [tx, ty],
+            [tx + 1, ty],
+            [tx, ty + 1],
+            [tx + 1, ty + 1]
+        ];
+        for (const [x, y] of cells) {
+            if (x >= 0 && x < MAX_X && y >= 0 && y < MAX_Y) {
+                world[y][x].type = 6;
+                world[y][x].teleport = { x: targetX, y: targetY };
+                world[y][x].darkness = false;
+            }
+        }
+        // base is already 999 from initial fill (we never carve under these 4 tiles)
+    };
 
-    // 1) Fill entire world with bedrock
+    // 1) Fill whole map with bedrock
     for (let y = 0; y < MAX_Y; y++) {
         for (let x = 0; x < MAX_X; x++) {
             world[y][x].type = 999;
@@ -382,114 +399,141 @@ const room1 = () => {
         }
     }
 
-    // -------------------------------------------------------
-    // 2) SPAWN CHAMBER — MUST BE WALKABLE (player at 5,5)
-    // -------------------------------------------------------
-    const spawnArea = [
-        [5,5], [5,4], [5,6],
-        [4,5], [6,5],
-        [4,4], [4,6],
-        [6,4], [6,6]
+    // 2) SPAWN CAVE around (5,5)
+    const spawnCave = [
+        [5,5],[4,5],[6,5],
+        [5,4],[5,6],
+        [4,4],[4,6],
+        [6,4],[6,6],
+        [7,5]
     ];
-    for (let [x,y] of spawnArea) {
+    for (const [x,y] of spawnCave) {
         world[y][x].type = 5;
         world[y][x].darkness = false;
     }
+    world[6][6].type = 14;  // small dirt pile
 
-    // -------------------------------------------------------
-    // 3) SMALL ENTRANCE TUNNEL FROM SPAWN → MAIN HALL
-    // -------------------------------------------------------
+    // 3) TUNNEL from spawn to main crossroads
     for (let x = 7; x <= 12; x++) {
         world[5][x].type = 5;
         world[5][x].darkness = false;
     }
-
-    // Add height variation (feels more natural)
     world[4][9].type = 5;
-    world[6][10].type = 5;
+    world[6][11].type = 5;
 
-    // -------------------------------------------------------
-    // 4) MAIN HALL (central spine of the dungeon)
-    // -------------------------------------------------------
-    for (let x = 12; x <= 34; x++) {
+    // 4) MAIN CROSSROADS (center-ish)
+    for (let x = 12; x <= 20; x++) {
         for (let y of [4,5,6]) {
             world[y][x].type = 5;
             world[y][x].darkness = false;
         }
     }
-
-    // Slight widening sections for shape
-    for (let x of [16,17,18]) {
+    // widen a bit
+    for (let x of [15,16]) {
         world[3][x].type = 5;
-    }
-    for (let x of [24,25]) {
         world[7][x].type = 5;
     }
+    world[5][18].type = 14; // dirt decoration
 
-    // -------------------------------------------------------
-    // 5) LEFT COLLAPSED CHAMBER (dirt + small pocket)
-    // -------------------------------------------------------
-    for (let y of [5,6,7]) {
-        for (let x of [2,3,4]) {
-            world[y][x].type = 5; // chamber
-        }
+    // 5) TOP MINI-MINE (upper left branch)
+    for (let x = 14; x >= 8; x--) {
+        world[3][x].type = 5;
+        world[3][x].darkness = false;
     }
+    for (let x = 8; x <= 11; x++) {
+        world[2][x].type = 5;
+    }
+    // collapsed dirt + ore
+    world[3][10].type = 14;
+    world[2][9].type = 14;
+    world[2][11].type = 514;   // Egodite
 
-    // collapsed dirt blocking left side
-    world[6][5].type = 14;
-    world[5][4].type = 14;
-    world[7][3].type = 14;
-
-    // tiny pocket with dirt + one ore
-    world[7][2].type = 5;
-    world[6][2].type = 514;
-    world[7][4].type = 14;
-
-    // -------------------------------------------------------
-    // 6) HARD-WALL VAULT (requires dynamite or upgrade)
-    // -------------------------------------------------------
-    // entrance hard walls
-    world[4][27].type = 991;
-    world[5][27].type = 991;
-
-    // chamber behind hard wall
-    for (let y of [3,4,5]) {
-        for (let x of [28,29,30]) {
+    // 6) RIGHT TELEPORT SHRINE (from crossroads)
+    for (let x = 20; x <= 30; x++) {
+        world[5][x].type = 5;
+        world[5][x].darkness = false;
+    }
+    // small room at right end
+    for (let y of [4,5,6]) {
+        for (let x of [30,31,32]) {
             world[y][x].type = 5;
+            world[y][x].darkness = false;
         }
     }
+    // TELEPORT SQUARE A at shrine → upper balcony
+    makeTeleportSquare(30, 4, 24, 2);
 
-    // ore rewards
-    world[4][29].type = 534;  // Jakub ore
-    world[3][28].type = 521;  // Ruinite
-    world[3][30].type = 514;  // Egodite
-
-    // -------------------------------------------------------
-    // 7) LOWER TREASURE ALCOVE (easy access)
-    // -------------------------------------------------------
-    // path down
-    for (let y = 7; y <= 11; y++) {
-        world[y][20].type = 5;
-    }
-
-    // small room at bottom
-    for (let y of [10,11]) {
-        for (let x of [19,20,21]) {
+    // 7) UPPER BALCONY (teleport A target)
+    for (let y of [1,2,3]) {
+        for (let x of [22,23,24,25,26]) {
             world[y][x].type = 5;
+            world[y][x].darkness = false;
+        }
+    }
+    world[2][24].type = 546;   // Aurorite
+    world[2][23].type = 514;   // Egodite
+
+    // TELEPORT SQUARE B on balcony → bottom-left market room
+    makeTeleportSquare(22, 1, 10, 18);
+
+    // 8) VERTICAL SHAFT from crossroads down to market/treasure area
+    for (let y = 7; y <= 14; y++) {
+        world[y][16].type = 5;
+        world[y][16].darkness = false;
+    }
+
+    // 9) BOTTOM-LEFT MARKET ROOM (fill that empty area)
+    // Main room rectangle
+    for (let y = 15; y <= 22; y++) {
+        for (let x = 4; x <= 16; x++) {
+            world[y][x].type = 5;
+            world[y][x].darkness = false;
         }
     }
 
-    // treasure ore
-    world[11][20].type = 546; // Aurorite
-    world[10][21].type = 14; // dirt rubble
+    // irregular shape: cut a bit from corners
+    for (let y of [21,22]) {
+        world[y][4].type = 999;
+        world[y][5].type = 999;
+    }
+    for (let y of [21,22]) {
+        world[y][16].type = 999;
+    }
 
-    // -------------------------------------------------------
-    // 8) ADD SMALL DETAIL BLOCKS FOR VISUAL VARIETY
-    // -------------------------------------------------------
-    world[5][18].type = 14; // dirt spot
-    world[4][22].type = 2;  // stone support beam
-    world[6][22].type = 2;
+    // SELL AREAS inside market (type 3)
+    world[18][8].type = 3;
+    world[18][10].type = 3;
+    world[18][12].type = 3;
+
+    // some dirt decoration in market
+    world[19][7].type = 14;
+    world[20][11].type = 14;
+
+    // 10) TREASURE VAULT on right side of market
+    // corridor from market to vault
+    for (let x = 16; x <= 22; x++) {
+        world[18][x].type = 5;
+        world[18][x].darkness = false;
+    }
+    // vault room
+    for (let y of [17,18,19]) {
+        for (let x of [22,23,24]) {
+            world[y][x].type = 5;
+            world[y][x].darkness = false;
+        }
+    }
+    // hard wall gate
+    world[18][22].type = 991;
+
+    // ores inside vault
+    world[18][23].type = 534;  // Jakub
+    world[17][23].type = 521;  // Ruinite
+
+    // 11) Teleport return square from market → back to crossroads
+    // put it in bottom-left of market
+    makeTeleportSquare(6, 20, 16, 5);
 };
+
 
 
 const updateWorld = () => {
