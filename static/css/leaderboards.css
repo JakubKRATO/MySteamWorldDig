@@ -29,10 +29,60 @@ table thead {
 th,td {
     text-align: start;
     padding: 5px 10px;
+    min-width: fit-content;
 }
 tr:nth-child(odd) {
     background-color: rgb(25, 25, 25);
 }
 table a {
     color: chartreuse;
+}
+
+@media screen and (max-width: 904px) {
+ul.leaderboards-menu li {
+    padding: 5px 50px;
+}
+}
+@media screen and (max-width: 660px) {
+ul.leaderboards-menu {
+    scale: 0.9;
+}
+table {
+    font-size: 20px;
+}
+}
+@media screen and (max-width: 541px) {
+ul.leaderboards-menu li { 
+    padding: 5px 20px;
+}
+table {
+    font-size: 16px;
+}
+}
+@media screen and (max-width: 478px) {
+table {
+    font-size: 14px;
+}
+}
+@media screen and (max-width: 435px) {
+table {
+    font-size: 12px;
+}
+}
+tbody tr td:nth-child(3) {
+    min-width: 50px;
+}
+tbody tr td:nth-child(6) {
+    min-width: 100px;
+}
+@media screen and (max-width: 400px) {
+table {
+    font-size: 11px;
+}
+tbody tr td:nth-child(3) {
+    min-width: 45px;
+}
+tbody tr td:nth-child(6) {
+    min-width: 85px;
+}
 }

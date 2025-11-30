@@ -36,8 +36,8 @@
 }
 .hero img {
     position: absolute;
-    bottom: 0;
-    right: 10px;
+    bottom: 20px;
+    right: 20px;
     width: 300px;
 }
 main {
@@ -49,7 +49,7 @@ body {
 }
 .welcome {
     position: absolute;
-    top: 20px;
+    bottom: 1050px;
     right: 80px;
     font-size: 2.5rem;
     animation: rotate 2s linear infinite;
@@ -88,8 +88,38 @@ nav li:hover {
     color: chartreuse;
 }
 
+@media screen and (max-width: 1400px) {
+    .hero {
+        padding: 50px 0 300px 0;
+    }
+}
+@media screen and (max-width: 780px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .hero p {
+        font-size: 1.2rem;
+    }
+}
 @media screen and (max-width: 500px) {
     nav li {
         font-size: 1rem;
+    }
+    .welcome {
+        font-size: 1.8rem;
+        bottom: 1100px;
+    }
+    main {
+        margin-left: 10px;
+    }
+}
+@media screen and (max-width: 630px) {
+    nav {
+        scale: 0.9;
+    }
+}
+@media screen and (max-width: 520px) {
+    nav {
+        scale: 0.8;
     }
 }
