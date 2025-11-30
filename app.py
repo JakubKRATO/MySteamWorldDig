@@ -192,6 +192,11 @@ def getLeaderboards():
 def tutorial():
     return render_template("tutorial.html")
 
+@app.route("/dungeon")
+def dungeon():
+    return render_template("dungeon.html")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
