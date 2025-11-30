@@ -140,13 +140,22 @@ def summary():
 @app.route("/profile/<profile>")
 def profile(profile):
     connection, db = activate_db()
+    
+    try:
+        db.execute("SELECT nickname, coins, xp, wins, id FROM users WHERE nickname = %s;", (profile,))
 
-    db.execute("SELECT nickname, coins, xp, wins FROM users WHERE nickname = %s;", (profile,))
-
-    data = db.fetchall()
+        data = db.fetchall()
+        db.execute("SELECT time FROM games WHERE user_id = %s AND time IS NOT NULL ORDER BY time LIMIT 1;", (data[0][4],))
+        time = db.fetchall()
+        db.execute("SELECT money FROM games WHERE user_id = %s AND money IS NOT NULL ORDER BY money DESC LIMIT 1;", (data[0][4],))
+        money = db.fetchall()
+        db.execute("SELECT tnt FROM games WHERE user_id = %s AND tnt IS NOT NULL ORDER BY tnt LIMIT 1;", (data[0][4],))
+        tnt = db.fetchall()
+    except Exception:
+        return render_template("chyba.html", message="Error while loading profile data... try again later")
 
     connection.close()
-    return render_template("profile.html", data=data[0])
+    return render_template("profile.html", data=data[0], time=time[0][0], money=money[0][0], tnt=tnt[0][0])
 
 @app.route("/leaderboards")
 def leaderboards():

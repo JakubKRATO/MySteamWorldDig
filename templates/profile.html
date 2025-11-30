@@ -16,17 +16,19 @@
         <img src="/static/img/crown.svg" alt="wins">
         <p>{{ data[3] }}</p>
     </div>
+    <div id="data" data-time="{{ time }}"></div>
     <h2>Stats</h2>
     <ul>
-        <li>Best time: {{ data.bestTime }} // TODO (spamujte jakuba nech dokoncii!!)</li>
-        <li>Best cash:  {{ data.bestCash }} // TODO (spamujte jakuba nech dokoncii!!)</li>
-        <li>Best tnt: {{ data.bestTnt }} // TODO (spamujte jakuba nech dokoncii!!)</li>
+        <li id="time"></li>
+        <li>Best cash:  {{ money }} </li>
+        <li>Best tnt: {{ tnt }} </li>
     </ul>
     <h2>Resources:</h2>
     <ul>
         <li>{{ data[1] }} <img src="/static/img/coin.svg" alt=""></li>
         <li>{{ data[2] }} XP</li>
     </ul>
+    <script src="/static/profile.js"></script>
 </main>
 
 {% endblock %}
