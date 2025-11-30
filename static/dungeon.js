@@ -373,165 +373,191 @@ const generateWorld = async () => {
 };
 
 const room1 = () => {
-    // Helper to create a 2x2 teleport square
-    const makeTeleportSquare = (tx, ty, targetX, targetY) => {
-        const cells = [
-            [tx, ty],
-            [tx + 1, ty],
-            [tx, ty + 1],
-            [tx + 1, ty + 1]
+
+    // --- Helper: 2×2 Sell Square with 4-wide bedrock base ---
+    const makeSell = (x, y) => {
+        const tiles = [
+            [x, y], [x+1, y],
+            [x, y+1], [x+1, y+1]
         ];
-        for (const [x, y] of cells) {
-            if (x >= 0 && x < MAX_X && y >= 0 && y < MAX_Y) {
-                world[y][x].type = 6;
-                world[y][x].teleport = { x: targetX, y: targetY };
-                world[y][x].darkness = false;
-            }
+        for (const [tx, ty] of tiles) {
+            world[ty][tx].type = 3;
+            world[ty][tx].darkness = false;
         }
-        // base is already 999 from initial fill (we never carve under these 4 tiles)
+        // base (x-1 .. x+2)
+        for (let bx = x-1; bx <= x+2; bx++) {
+            world[y+2][bx].type = 999;
+        }
     };
 
-    // 1) Fill whole map with bedrock
-    for (let y = 0; y < MAX_Y; y++) {
-        for (let x = 0; x < MAX_X; x++) {
+    // --- Helper: 2×2 Teleport Square with 4-wide bedrock base ---
+    const makeTeleport = (x, y, targetX, targetY) => {
+        const tiles = [
+            [x, y], [x+1, y],
+            [x, y+1], [x+1, y+1]
+        ];
+        for (const [tx, ty] of tiles) {
+            world[ty][tx].type = 6;
+            world[ty][tx].teleport = { x: targetX, y: targetY };
+            world[ty][tx].darkness = false;
+        }
+        for (let bx = x-1; bx <= x+2; bx++) {
+            world[y+2][bx].type = 999;
+        }
+    };
+
+    // --- Fill world with bedrock ---
+    for (let y=0; y<MAX_Y; y++) {
+        for (let x=0; x<MAX_X; x++) {
             world[y][x].type = 999;
             world[y][x].darkness = true;
         }
     }
 
-    // 2) SPAWN CAVE around (5,5)
-    const spawnCave = [
+    // ============================================================
+    //   SPAWN CAVE (5,5)
+    // ============================================================
+    const spawn = [
         [5,5],[4,5],[6,5],
         [5,4],[5,6],
         [4,4],[4,6],
-        [6,4],[6,6],
-        [7,5]
+        [6,4],[6,6],[7,5]
     ];
-    for (const [x,y] of spawnCave) {
+    spawn.forEach(([x,y])=>{
         world[y][x].type = 5;
         world[y][x].darkness = false;
-    }
-    world[6][6].type = 14;  // small dirt pile
+    });
+    world[6][6].type = 14;
 
-    // 3) TUNNEL from spawn to main crossroads
-    for (let x = 7; x <= 12; x++) {
+    // Tunnel to crossroads
+    for (let x=7; x<=12; x++) {
         world[5][x].type = 5;
         world[5][x].darkness = false;
     }
     world[4][9].type = 5;
     world[6][11].type = 5;
 
-    // 4) MAIN CROSSROADS (center-ish)
-    for (let x = 12; x <= 20; x++) {
+    // ============================================================
+    //   MAIN CROSSROADS
+    // ============================================================
+    for (let x=12; x<=20; x++) {
         for (let y of [4,5,6]) {
             world[y][x].type = 5;
             world[y][x].darkness = false;
         }
     }
-    // widen a bit
-    for (let x of [15,16]) {
-        world[3][x].type = 5;
-        world[7][x].type = 5;
-    }
-    world[5][18].type = 14; // dirt decoration
+    world[5][18].type = 14;
 
-    // 5) TOP MINI-MINE (upper left branch)
-    for (let x = 14; x >= 8; x--) {
+    // widen
+    world[3][15].type = 5;
+    world[3][16].type = 5;
+    world[7][15].type = 5;
+    world[7][16].type = 5;
+
+    // ============================================================
+    //   UPPER MINI-MINE
+    // ============================================================
+    for (let x=14; x>=8; x--) {
         world[3][x].type = 5;
         world[3][x].darkness = false;
     }
-    for (let x = 8; x <= 11; x++) {
+    for (let x=8; x<=11; x++) {
         world[2][x].type = 5;
     }
-    // collapsed dirt + ore
+
     world[3][10].type = 14;
     world[2][9].type = 14;
-    world[2][11].type = 514;   // Egodite
 
-    // 6) RIGHT TELEPORT SHRINE (from crossroads)
-    for (let x = 20; x <= 30; x++) {
+    // ore
+    world[2][11].type = 514;
+
+    // ============================================================
+    //   RIGHT TELEPORT SHRINE
+    // ============================================================
+    for (let x=20; x<=30; x++) {
         world[5][x].type = 5;
         world[5][x].darkness = false;
     }
-    // small room at right end
     for (let y of [4,5,6]) {
         for (let x of [30,31,32]) {
             world[y][x].type = 5;
             world[y][x].darkness = false;
         }
     }
-    // TELEPORT SQUARE A at shrine → upper balcony
-    makeTeleportSquare(30, 4, 24, 2);
 
-    // 7) UPPER BALCONY (teleport A target)
+    // Teleport A → balcony
+    makeTeleport(30, 4, 24, 2);
+
+    // ============================================================
+    //   UPPER BALCONY (Teleport A target)
+    // ============================================================
     for (let y of [1,2,3]) {
         for (let x of [22,23,24,25,26]) {
             world[y][x].type = 5;
             world[y][x].darkness = false;
         }
     }
-    world[2][24].type = 546;   // Aurorite
-    world[2][23].type = 514;   // Egodite
+    world[2][24].type = 546;
+    world[2][23].type = 514;
 
-    // TELEPORT SQUARE B on balcony → bottom-left market room
-    makeTeleportSquare(22, 1, 10, 18);
+    // Teleport B → market
+    makeTeleport(22,1, 10,18);
 
-    // 8) VERTICAL SHAFT from crossroads down to market/treasure area
-    for (let y = 7; y <= 14; y++) {
+    // ============================================================
+    //   VERTICAL SHAFT TO MARKET
+    // ============================================================
+    for (let y=7; y<=14; y++) {
         world[y][16].type = 5;
         world[y][16].darkness = false;
     }
 
-    // 9) BOTTOM-LEFT MARKET ROOM (fill that empty area)
-    // Main room rectangle
-    for (let y = 15; y <= 22; y++) {
-        for (let x = 4; x <= 16; x++) {
+    // ============================================================
+    //   BOTTOM-LEFT MARKET ROOM
+    // ============================================================
+    for (let y=15; y<=22; y++) {
+        for (let x=4; x<=16; x++) {
             world[y][x].type = 5;
             world[y][x].darkness = false;
         }
     }
 
-    // irregular shape: cut a bit from corners
-    for (let y of [21,22]) {
-        world[y][4].type = 999;
-        world[y][5].type = 999;
-    }
-    for (let y of [21,22]) {
-        world[y][16].type = 999;
-    }
+    // cut shape edges
+    world[21][4] = {type:999};
+    world[22][4] = {type:999};
+    world[21][5] = {type:999};
 
-    // SELL AREAS inside market (type 3)
-    world[18][8].type = 3;
-    world[18][10].type = 3;
-    world[18][12].type = 3;
-
-    // some dirt decoration in market
+    // Market dirt décor
     world[19][7].type = 14;
     world[20][11].type = 14;
 
-    // 10) TREASURE VAULT on right side of market
-    // corridor from market to vault
-    for (let x = 16; x <= 22; x++) {
+    // SELL SQUARES in the market
+    makeSell(8,17);
+    makeSell(12,17);
+
+    // ============================================================
+    //   VAULT
+    // ============================================================
+    for (let x=16; x<=22; x++) {
         world[18][x].type = 5;
         world[18][x].darkness = false;
     }
-    // vault room
+
     for (let y of [17,18,19]) {
         for (let x of [22,23,24]) {
             world[y][x].type = 5;
             world[y][x].darkness = false;
         }
     }
-    // hard wall gate
-    world[18][22].type = 991;
 
-    // ores inside vault
+    world[18][22].type = 991;  // gate
+
     world[18][23].type = 534;  // Jakub
     world[17][23].type = 521;  // Ruinite
 
-    // 11) Teleport return square from market → back to crossroads
-    // put it in bottom-left of market
-    makeTeleportSquare(6, 20, 16, 5);
+    // ============================================================
+    //   Return Teleport Square → crossroads
+    // ============================================================
+    makeTeleport(6,20, 16,5);
 };
 
 
