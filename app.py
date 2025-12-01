@@ -2,6 +2,7 @@ import os
 import uuid
 import math
 import random
+from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 import mysql.connector
 from flask import Flask, render_template, request, redirect, session
@@ -111,6 +112,13 @@ def index():
     if not session.get("name"):
         return render_template("index.html")
     
+    now = datetime.now()
+    connection, db = activate_db()
+    print(now.strftime("%Y-%m-%d %H:%M:%S"))
+    db.execute("UPDATE users SET last_online = %s WHERE id = %s;", (now.strftime("%Y-%m-%d %H:%M:%S"),session["user_id"]))
+
+    connection.commit()
+    connection.close()
     return render_template("index.html", name=session["name"])
 
 @app.route("/game")
