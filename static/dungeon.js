@@ -13,7 +13,7 @@ const MAX_Y = 25;
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
 
-const DISABLE_DARKNESS = true
+const DISABLE_DARKNESS = false
 const TILE_SIZE = 32; //32x32
 
 const res = "1280x800";
@@ -291,12 +291,12 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     lamp: 5,
     pickStrength: 35, // base is 15
     money: 0,
-    cardio: 1,
+    cardio: 3,
     swiftPickaxe: 3,
     midas: 0,
     diagonal: true,
     tools: {
-        dynamite: 10
+        dynamite: 100
     },
     unlockedTools: ["dynamite"],
     selectedTool: 0,
@@ -324,15 +324,16 @@ const main = async () => {
 
     worldInUse = world
     /* TESTING CHANGES TO THE WORLD SPACE*/
-
+    
     room1()
+    updateWorld()
     
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
     // Main game loop runs here (30 FPS)
     gameloop = setInterval(() => {
         updatePlayer()
-        renderWorld(worldInUse)
+        renderWorld()
         renderGUI()
         setDarkness()
         movementSpeed -= 0.033; // 33ms = 0.033s
@@ -372,193 +373,275 @@ const generateWorld = async () => {
     updateWorld()
 };
 
-const room1 = () => {
+function room1() {
+    const WIDTH = MAX_X;  // 40
+    const HEIGHT = MAX_Y; // 25
 
-    // --- Helper: 2×2 Sell Square with 4-wide bedrock base ---
+    // ----------------- helpers -----------------
+    const inBounds = (x, y) => x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+
+    const setType = (x, y, t, light = false) => {
+        if (!inBounds(x, y)) return;
+        world[y][x].type = t;
+        if (light) world[y][x].darkness = false;
+    };
+
+    const carve = (x, y, light = true) => setType(x, y, 5, light); // air
+
+    const carveRect = (x1, y1, x2, y2, light = true) => {
+        const xa = Math.min(x1, x2);
+        const xb = Math.max(x1, x2);
+        const ya = Math.min(y1, y2);
+        const yb = Math.max(y1, y2);
+        for (let y = ya; y <= yb; y++) {
+            for (let x = xa; x <= xb; x++) carve(x, y, light);
+        }
+    };
+
+    const makeTeleport = (x, y, tx, ty) => {
+        // 2×2 teleport square
+        setType(x,   y,   6, true);
+        setType(x+1, y,   6, true);
+        setType(x,   y+1, 6, true);
+        setType(x+1, y+1, 6, true);
+
+        // base row of 4 bedrock: x-1..x+2 just under teleport
+        setType(x-1, y+2, 999);
+        setType(x,   y+2, 999);
+        setType(x+1, y+2, 999);
+        setType(x+2, y+2, 999);
+
+        // teleport destination for all 4 tiles
+        world[y][x].teleport       = { x: tx, y: ty };
+        world[y][x+1].teleport     = { x: tx, y: ty };
+        world[y+1][x].teleport     = { x: tx, y: ty };
+        world[y+1][x+1].teleport   = { x: tx, y: ty };
+    };
+
     const makeSell = (x, y) => {
-        const tiles = [
-            [x, y], [x+1, y],
-            [x, y+1], [x+1, y+1]
-        ];
-        for (const [tx, ty] of tiles) {
-            world[ty][tx].type = 3;
-            world[ty][tx].darkness = false;
-        }
-        // base (x-1 .. x+2)
-        for (let bx = x-1; bx <= x+2; bx++) {
-            world[y+2][bx].type = 999;
-        }
+        // 2×2 sell zone
+        setType(x,   y,   3, true);
+        setType(x+1, y,   3, true);
+        setType(x,   y+1, 3, true);
+        setType(x+1, y+1, 3, true);
+
+        // 4 wide bedrock base
+        setType(x-1, y+2, 999);
+        setType(x,   y+2, 999);
+        setType(x+1, y+2, 999);
+        setType(x+2, y+2, 999);
     };
 
-    // --- Helper: 2×2 Teleport Square with 4-wide bedrock base ---
-    const makeTeleport = (x, y, targetX, targetY) => {
-        const tiles = [
-            [x, y], [x+1, y],
-            [x, y+1], [x+1, y+1]
-        ];
-        for (const [tx, ty] of tiles) {
-            world[ty][tx].type = 6;
-            world[ty][tx].teleport = { x: targetX, y: targetY };
-            world[ty][tx].darkness = false;
-        }
-        for (let bx = x-1; bx <= x+2; bx++) {
-            world[y+2][bx].type = 999;
-        }
-    };
+    const putOre = (x, y, t) => setType(x, y, t, true);
 
-    // --- Fill world with bedrock ---
-    for (let y=0; y<MAX_Y; y++) {
-        for (let x=0; x<MAX_X; x++) {
+    // ----------------- 1) fill with bedrock -----------------
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
             world[y][x].type = 999;
             world[y][x].darkness = true;
         }
     }
 
-    // ============================================================
-    //   SPAWN CAVE (5,5)
-    // ============================================================
-    const spawn = [
+    // ----------------- 2) MAIN DUNGEON (upper half) -----------------
+    // Big hall: x 3..35, y 3..9
+    carveRect(3, 3, 35, 9, true);
+
+    // Extra spawn cave around (5,5) (in case world was different before)
+    const spawnCave = [
         [5,5],[4,5],[6,5],
         [5,4],[5,6],
         [4,4],[4,6],
         [6,4],[6,6],[7,5]
     ];
-    spawn.forEach(([x,y])=>{
-        world[y][x].type = 5;
-        world[y][x].darkness = false;
-    });
-    world[6][6].type = 14;
+    for (const [sx, sy] of spawnCave) carve(sx, sy, true);
+    setType(6, 6, 14, true); // dirt lump at spawn
 
-    // Tunnel to crossroads
-    for (let x=7; x<=12; x++) {
-        world[5][x].type = 5;
-        world[5][x].darkness = false;
+    // Some stone/dirt "pillars" inside hall
+    setType(10,5,14,true);
+    setType(11,5,14,true);
+    setType(10,6,2,true);
+    setType(11,6,2,true);
+
+    setType(18,4,14,true);
+    setType(19,4,14,true);
+    setType(18,5,2,true);
+
+    setType(26,7,14,true);
+    setType(27,7,14,true);
+
+    // Ore clusters in side spots
+    putOre(8,4,102);   // Coal
+    putOre(9,4,102);
+    putOre(15,8,112);  // Iron
+    putOre(16,8,112);
+    putOre(22,6,504);  // Shredstone
+    putOre(23,6,504);
+
+    // A small right-side "rich" pocket
+    carveRect(30, 3, 35, 5, true);
+    putOre(31,4,514);  // Egodite
+    putOre(33,4,521);  // Ruinite
+
+    // ----------------- SELL ZONE (only one) -----------------
+    // Put it in upper-right corner of hall
+    const SELL_X = 30;
+    const SELL_Y = 4;
+    makeSell(SELL_X, SELL_Y);
+
+    // ----------------- 3) SECRET CHAT ROOM (lower, centered) -----------------
+    // Room outer box: x 6..32, y 10..20 (27×11)
+    const RX0 = 6;   // outer left
+    const RY0 = 10;  // outer top
+    const RX1 = 32;  // outer right
+    const RY1 = 20;  // outer bottom
+
+    // Outer walls
+    for (let x = RX0; x <= RX1; x++) {
+        setType(x, RY0, 999); // top
+        setType(x, RY1, 999); // bottom
     }
-    world[4][9].type = 5;
-    world[6][11].type = 5;
-
-    // ============================================================
-    //   MAIN CROSSROADS
-    // ============================================================
-    for (let x=12; x<=20; x++) {
-        for (let y of [4,5,6]) {
-            world[y][x].type = 5;
-            world[y][x].darkness = false;
-        }
-    }
-    world[5][18].type = 14;
-
-    // widen
-    world[3][15].type = 5;
-    world[3][16].type = 5;
-    world[7][15].type = 5;
-    world[7][16].type = 5;
-
-    // ============================================================
-    //   UPPER MINI-MINE
-    // ============================================================
-    for (let x=14; x>=8; x--) {
-        world[3][x].type = 5;
-        world[3][x].darkness = false;
-    }
-    for (let x=8; x<=11; x++) {
-        world[2][x].type = 5;
+    for (let y = RY0; y <= RY1; y++) {
+        setType(RX0, y, 999); // left
+        setType(RX1, y, 999); // right
     }
 
-    world[3][10].type = 14;
-    world[2][9].type = 14;
-
-    // ore
-    world[2][11].type = 514;
-
-    // ============================================================
-    //   RIGHT TELEPORT SHRINE
-    // ============================================================
-    for (let x=20; x<=30; x++) {
-        world[5][x].type = 5;
-        world[5][x].darkness = false;
-    }
-    for (let y of [4,5,6]) {
-        for (let x of [30,31,32]) {
-            world[y][x].type = 5;
-            world[y][x].darkness = false;
+    // Interior clear to air
+    for (let y = RY0+1; y <= RY1-1; y++) {
+        for (let x = RX0+1; x <= RX1-1; x++) {
+            setType(x, y, 5, true);
         }
     }
 
-    // Teleport A → balcony
-    makeTeleport(30, 4, 24, 2);
+    // CHAT letters centered in room
+    // interior width = 25 (x 7..31), interior height = 9 (y 11..19)
+    // letters 4×(5 wide) + 3 gaps = 23 cols
+    // centered → start at x=8, y=12
+    const LETTER_X0 = 8;
+    const LETTER_Y0 = 12;
 
-    // ============================================================
-    //   UPPER BALCONY (Teleport A target)
-    // ============================================================
-    for (let y of [1,2,3]) {
-        for (let x of [22,23,24,25,26]) {
-            world[y][x].type = 5;
-            world[y][x].darkness = false;
+    const C = [
+        "#####",
+        "#....",
+        "#....",
+        "#....",
+        "#....",
+        "#....",
+        "#####"
+    ];
+    const H = [
+        "#...#",
+        "#...#",
+        "#...#",
+        "#####",
+        "#...#",
+        "#...#",
+        "#...#"
+    ];
+    const A = [
+        "#####",
+        "#...#",
+        "#...#",
+        "#####",
+        "#...#",
+        "#...#",
+        "#...#"
+    ];
+    const T = [
+        "#####",
+        "..#..",
+        "..#..",
+        "..#..",
+        "..#..",
+        "..#..",
+        "..#.."
+    ];
+    const letters = [C, H, A, T];
+
+    let lx = LETTER_X0;
+    for (const L of letters) {
+        for (let r = 0; r < L.length; r++) {
+            for (let c = 0; c < L[r].length; c++) {
+                if (L[r][c] === "#") {
+                    setType(lx + c, LETTER_Y0 + r, 991, true); // hard-wall letters
+                }
+            }
+        }
+        lx += 6; // 5 pixels + 1 column gap
+    }
+
+    // A few rich ores inside secret room
+    putOre(LETTER_X0+3, LETTER_Y0+8 <= RY1-1 ? LETTER_Y0+6 : LETTER_Y0+5, 546); // Aurorite somewhere under letters
+    putOre(LETTER_X0+15, LETTER_Y0+6, 534); // Jakub
+
+    // ----------------- 4) TELEPORTS (to/from CHAT room) -----------------
+
+    // We'll arrive into the CHAT room near its upper middle
+    const CHAT_ENTRY_X = 19;
+    const CHAT_ENTRY_Y = 13;
+
+    // Return teleport inside CHAT room, near bottom middle
+    const CHAT_TEL_X = 18; // top-left of 2×2
+    const CHAT_TEL_Y = 17;
+
+    makeTeleport(CHAT_TEL_X, CHAT_TEL_Y, 15, 6); // returns to central area in hall
+
+    // ----------------- 5) TNT-GATED TELEPORT ENTRANCE IN MAIN HALL -----------------
+    // Design:
+    // row 5: dirt floor (player stands at 9,5)
+    // row 6: air (TNT placement at 9,6)
+    // row 7: hard-wall line (991) at 8..10
+    // row 8–9: teleport 2×2 at (8,8)
+    // base row y=10 will be 999 from makeTeleport, matching top of CHAT room wall.
+
+    // Ensure area is carved in hall
+    for (let y = 3; y <= 9; y++) {
+        for (let x = 7; x <= 11; x++) carve(x, y, true);
+    }
+
+    // Dirt floor at y=5 under player for standing
+    setType(9, 5, 14, true);
+
+    // Air row for TNT placement
+    carve(8, 6, true);
+    carve(9, 6, true);
+    carve(10,6, true);
+
+    // Hard-wall gate row at y=7
+    setType(8, 7, 991);
+    setType(9, 7, 991);
+    setType(10,7, 991);
+
+    // Teleporter itself at (8,8), 2×2
+    const ENTER_TEL_X = 8;
+    const ENTER_TEL_Y = 8;
+    makeTeleport(ENTER_TEL_X, ENTER_TEL_Y, CHAT_ENTRY_X, CHAT_ENTRY_Y);
+
+    // Make sure around the teleporter (except its tiles) is not walkable
+    // so you cannot just slip diagonally without TNT.
+    // Above gate row we already have hall; below we rely on CHAT wall at y=10.
+    // Seal sides at y=7..9 except teleport interior.
+    for (let y = 7; y <= 9; y++) {
+        for (let x = 7; x <= 11; x++) {
+            // leave teleporter tiles and gate itself as is
+            if (
+                (y === ENTER_TEL_Y && (x === ENTER_TEL_X || x === ENTER_TEL_X+1)) ||
+                (y === ENTER_TEL_Y+1 && (x === ENTER_TEL_X || x === ENTER_TEL_X+1)) ||
+                (y === 7 && (x >= 8 && x <= 10))
+            ) {
+                continue;
+            }
+            // seal with bedrock to avoid diagonal paths
+            setType(x, y, 999);
         }
     }
-    world[2][24].type = 546;
-    world[2][23].type = 514;
 
-    // Teleport B → market
-    makeTeleport(22,1, 10,18);
+    // Add some "hint" ore near the TNT gate
+    putOre(7,4,102);
+    putOre(11,4,102);
+}
 
-    // ============================================================
-    //   VERTICAL SHAFT TO MARKET
-    // ============================================================
-    for (let y=7; y<=14; y++) {
-        world[y][16].type = 5;
-        world[y][16].darkness = false;
-    }
 
-    // ============================================================
-    //   BOTTOM-LEFT MARKET ROOM
-    // ============================================================
-    for (let y=15; y<=22; y++) {
-        for (let x=4; x<=16; x++) {
-            world[y][x].type = 5;
-            world[y][x].darkness = false;
-        }
-    }
 
-    // cut shape edges
-    world[21][4] = {type:999};
-    world[22][4] = {type:999};
-    world[21][5] = {type:999};
-
-    // Market dirt décor
-    world[19][7].type = 14;
-    world[20][11].type = 14;
-
-    // SELL SQUARES in the market
-    makeSell(8,17);
-    makeSell(12,17);
-
-    // ============================================================
-    //   VAULT
-    // ============================================================
-    for (let x=16; x<=22; x++) {
-        world[18][x].type = 5;
-        world[18][x].darkness = false;
-    }
-
-    for (let y of [17,18,19]) {
-        for (let x of [22,23,24]) {
-            world[y][x].type = 5;
-            world[y][x].darkness = false;
-        }
-    }
-
-    world[18][22].type = 991;  // gate
-
-    world[18][23].type = 534;  // Jakub
-    world[17][23].type = 521;  // Ruinite
-
-    // ============================================================
-    //   Return Teleport Square → crossroads
-    // ============================================================
-    makeTeleport(6,20, 16,5);
-};
 
 
 
@@ -566,6 +649,7 @@ const updateWorld = () => {
     for (let y = 0; y < MAX_Y; y++) {
         for (let x = 0; x < MAX_X; x++) {
             world[y][x].ore = world[y][x].type > 100 && world[y][x].type < 990 ? true : false
+            world[y][x].darkness = true
         }
     }
 };
