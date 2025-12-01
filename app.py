@@ -283,6 +283,10 @@ def logout():
     session.clear()
     return redirect("/")
 
+@app.route("/martin-rindos")
+def martinrindos():
+    return render_template("martin-rindos.html")
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
