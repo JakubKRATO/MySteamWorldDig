@@ -127,7 +127,7 @@ const ores = {
     1000: "Blue Diamond",
     1100: "Horrorite"
 }
-const Tools = JSON.parse(localStorage.getItem("Tools")) || {
+const Tools = {
     dynamite: {
             heading: "Jednoduchý dynamit",
             p: "Dynamit dokáže zničiť tvrdú stenu (krompáč nie)",
@@ -135,7 +135,7 @@ const Tools = JSON.parse(localStorage.getItem("Tools")) || {
             price: 7
     }
 }
-const Shop = JSON.parse(localStorage.getItem("Shop")) || {
+const Shop = {
     pickaxe: {
         2: {
             heading: "Kamený Krompáč",
@@ -281,7 +281,7 @@ const Shop = JSON.parse(localStorage.getItem("Shop")) || {
         compaas: 2
     }
 }
-var player = JSON.parse(localStorage.getItem("player")) || {
+var player = {
     pos: {
         x: 5,
         y: 5
