@@ -300,7 +300,7 @@ var player = {
     },
     unlockedTools: ["dynamite"],
     selectedTool: 0,
-    compaas: false
+    compaas: true
 }
 /* CONFIG AREA */
 var world = [];
@@ -344,15 +344,20 @@ const generateWorld = async () => {
             }
             let randomNum1 = getRandomInt(0,1)
             world[y][x].type = 0
+
+            // terrain
             if (y == 6) {
                 world[y - randomNum1][x].type = 13
             }
             if (y > 5) {
                 world[y][x].type = world[y][x].type == 13 ? 13 : 14 
             }
+            if (y > getRandomInt(11,13)) {
+                world[y][x].type = 23
+            }
             
             // ores
-            if (y > 7) {
+            if (y > 7 && y < 20) {
                 let randomNum1000 = getRandomInt(0,1000)
                 if (randomNum1000 > 985) {
                     let random = getRandomInt(5,8)
@@ -676,8 +681,13 @@ const dig = (x,y, boom) => {
         world[y][x].type = setWall(y,x)
     }
 };
-const setWall = (y, x) => {
+const setWall = (y, x, previous) => {
+    console.log("setwall says:")
+    console.log(world[y][x].type)
     let type = world[y][x].type
+    if (previous) {
+        type = previous   
+    }
     let wall = type > 26 ? 5 : type > 20 ? 2 : type > 10 ? 1 : 0
     return wall
 };
@@ -741,7 +751,7 @@ const renderGUI = () => {
         canvas.fillStyle = "white";
         canvas.textAlign = "center";
         canvas.textBaseline = "middle";
-        canvas.fillText(`Hĺbka: ${player.pos.y - 5}`,60, 67);
+        canvas.fillText(`Hĺbka: ${player.pos.y}`,60, 67);
     }
 };
 const generateDoor = (x,y,posX,posY, up, type, shopType) => {
@@ -836,7 +846,8 @@ const boom = async (x,y) => {
         for (let xt of [-1,0,1]) {
             if (!(illegal.includes(world[y + yt][x + xt].type))) {
                 dig(x + xt, y + yt, true)
-                world[y + yt][x + xt].type = setWall(y + yt)
+                console.log(world[y + yt][x + xt].type)
+                world[y + yt][x + xt].type = setWall(y + yt, x + yt, block.type)
                 world[y + yt][x + xt].ore = false
             }
         }
