@@ -1,3 +1,6 @@
+const timeDisplay = document.querySelector("#time")
+const timeData = parseInt(document.querySelector("#data").attributes["data-time"].value)
+
 const calcTime = (time) => {
     const totalSeconds = time / 1000
 
@@ -13,4 +16,8 @@ const calcTime = (time) => {
     return `${seconds}s`
 };
 
-document.querySelector("#time").innerHTML = calcTime(document.querySelector("#data").attributes["data-time"].value)
+if (isNaN(timeData)) {
+    timeDisplay.innerHTML = "Best time: N/A"
+} else {
+    timeDisplay.innerHTML = `Best time: ${calcTime(timeData)}`
+}
