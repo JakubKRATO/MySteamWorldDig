@@ -7,8 +7,8 @@ const li = ShopElement.getElementsByTagName("li")
 const ToolsElement = document.getElementsByClassName("tools")[0];
 const liTools = ToolsElement.getElementsByTagName("li")
 
-const MAX_X = 40;
-const MAX_Y = 25;
+const MAX_X = 100;
+const MAX_Y = 100;
 
 const DISPLAY_X = 40;
 const DISPLAY_Y = 25;
@@ -325,6 +325,7 @@ const main = async () => {
     worldInUse = world
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
+    // room1()
     room1()
     updateWorld()
     
@@ -372,6 +373,245 @@ const generateWorld = async () => {
     }
     updateWorld()
 };
+function generateDungeon() {
+    const W = MAX_X;   // 100
+    const H = MAX_Y;   // 100
+
+    const safe = (x, y) => x >= 0 && x < W && y >= 0 && y < H;
+
+    const setType = (x, y, t, light = false) => {
+        if (!safe(x, y)) return;
+        world[y][x].type = t;
+        if (light) world[y][x].darkness = false;
+    };
+
+    const carve = (x, y, light = true) => setType(x, y, 5, light); // air
+
+    const carveRect = (x1, y1, x2, y2, light = true) => {
+        const xa = Math.min(x1, x2);
+        const xb = Math.max(x1, x2);
+        const ya = Math.min(y1, y2);
+        const yb = Math.max(y1, y2);
+        for (let y = ya; y <= yb; y++) {
+            for (let x = xa; x <= xb; x++) carve(x, y, light);
+        }
+    };
+
+    const carveTunnel = (points) => {
+        // points: [[x1,y1], [x2,y2], ...]
+        for (let i = 0; i < points.length - 1; i++) {
+            let [x1, y1] = points[i];
+            let [x2, y2] = points[i + 1];
+            let dx = Math.sign(x2 - x1);
+            let dy = Math.sign(y2 - y1);
+            let x = x1;
+            let y = y1;
+            carve(x, y);
+            while (x !== x2 || y !== y2) {
+                if (x !== x2) x += dx;
+                if (y !== y2) y += dy;
+                carve(x, y);
+            }
+        }
+    };
+
+    const makeSell = (x, y) => {
+        setType(x,   y,   3, true);
+        setType(x+1, y,   3, true);
+        setType(x,   y+1, 3, true);
+        setType(x+1, y+1, 3, true);
+
+        setType(x-1, y+2, 999);
+        setType(x,   y+2, 999);
+        setType(x+1, y+2, 999);
+        setType(x+2, y+2, 999);
+    };
+
+    const makeShop = (x, y, type) => {
+        setType(x,   y,   4, true); world[y][x].obchod = type;
+        setType(x+1, y,   4, true); world[y][x+1].obchod = type;
+        setType(x,   y+1, 4, true); world[y+1][x].obchod = type;
+        setType(x+1, y+1, 4, true); world[y+1][x+1].obchod = type;
+
+        setType(x-1, y+2, 999);
+        setType(x,   y+2, 999);
+        setType(x+1, y+2, 999);
+        setType(x+2, y+2, 999);
+    };
+
+    const makeTNTGate = (x1, x2, y) => {
+        for (let x = x1; x <= x2; x++) setType(x, y, 991);
+    };
+
+    const putOre = (x, y, t) => setType(x, y, t, true);
+
+    // =========================
+    // 0) FILL WITH BEDROCK
+    // =========================
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            world[y][x].type = 999;
+            world[y][x].darkness = true;
+            world[y][x].obchod = undefined;
+            world[y][x].teleport = undefined;
+        }
+    }
+
+    // =========================
+    // 1) SPAWN AREA (5,5)
+    // =========================
+    carveRect(3, 3, 9, 9);  // small start cave
+    setType(6, 6, 14, true); // one dirt rock inside
+
+    // tunnel from spawn to hub entrance
+    carveTunnel([[6, 9], [6, 14], [10, 16], [15, 17]]);
+
+    // =========================
+    // 2) CENTRAL HUB
+    // =========================
+    // hub roughly around (22,18)
+    carveRect(18, 16, 28, 22);
+
+    // sell zone in hub
+    makeSell(20, 17);
+
+    // shop type 1 (normal upgrades) in hub
+    makeShop(24, 18, 1);
+
+    // some “decor” rocks in hub
+    setType(19, 18, 2, true);
+    setType(26, 20, 14, true);
+
+    // shallow ores near hub walls
+    putOre(18, 17, 102); // coal
+    putOre(27, 21, 112); // iron
+
+    // =========================
+    // 3) LEFT MINING WING
+    // =========================
+    // thin tunnel from hub to left side caves
+    carveTunnel([[19, 19], [15, 24], [11, 30], [9, 37]]);
+
+    // two small caves off the tunnel
+    carveRect(7, 35, 12, 39);    // lower cave
+    carveRect(12, 27, 16, 31);   // upper cave
+
+    // holes / pockets around
+    carveRect(6, 32, 8, 34);
+    carveRect(14, 33, 15, 35);
+
+    // ores in left wing
+    putOre(8, 36, 102);
+    putOre(9, 36, 102);
+    putOre(13, 28, 112);
+    putOre(15, 29, 112);
+
+    // =========================
+    // 4) RIGHT WING TO TNT SHOP
+    // =========================
+    // corridor from hub to TNT shop room
+    carveTunnel([[27, 19], [34, 21], [42, 23], [50, 26]]);
+
+    // shop 2 room
+    carveRect(48, 24, 55, 30);
+    makeShop(50, 25, 2);   // TNT seller
+
+    // ores near TNT shop
+    putOre(49, 27, 504);   // Shredstone
+    putOre(53, 27, 514);   // Egodite
+
+    // small side pocket near shop
+    carveRect(56, 25, 59, 27);
+    putOre(57, 26, 102);
+
+    // =========================
+    // 5) MID-DEPTH CAVERN
+    // =========================
+    // tunnel down from TNT shop
+    carveTunnel([[52, 29], [56, 35], [56, 42], [52, 48]]);
+
+    // mid cavern
+    carveRect(48, 46, 63, 54);
+
+    // rubble / mineables in cavern
+    setType(50, 48, 14, true);
+    setType(61, 52, 2, true);
+
+    // ores
+    putOre(52, 49, 514);
+    putOre(55, 51, 521);
+    putOre(60, 50, 521);
+
+    // offshoot caves from mid cavern
+    carveTunnel([[50, 53], [45, 58]]);
+    carveRect(43, 57, 48, 61);
+    putOre(44, 59, 504);
+
+    carveTunnel([[61, 48], [68, 45]]);
+    carveRect(66, 44, 72, 47);
+    putOre(68, 45, 514);
+
+    // random holes around mid depth
+    carveRect(54, 44, 55, 45);
+    carveRect(59, 55, 60, 56);
+    carveRect(46, 51, 47, 52);
+
+    // =========================
+    // 6) TOWER-UP TNT CHECK (VERTICAL SHAFT)
+    // =========================
+    // from mid cavern, tunnel to the shaft entrance
+    carveTunnel([[60, 52], [70, 55], [75, 60]]);
+
+    // vertical shaft at x=75 from y=60 down to y=80 (all air)
+    for (let y = 60; y <= 80; y++) carve(75, y);
+
+    // widen the shaft a bit (1-tile each side) for comfort
+    for (let y = 62; y <= 80; y++) {
+        carve(74, y);
+        carve(76, y);
+    }
+
+    // HARD-WALL CEILING ABOVE SHAFT (tower-up check)
+    // At y=59 spanning x=74..76
+    for (let x = 74; x <= 76; x++) setType(x, 59, 991);
+
+    // Above the hard wall we place a corridor to deep vault (initially blocked)
+    carveRect(72, 55, 78, 58); // this is the area you get to once 991 is blown
+    // Put some ores as reward just after breaking through
+    putOre(73, 56, 546);  // Aurorite
+    putOre(77, 56, 534);  // Jakub
+
+    // The player stands at bottom of shaft (around 75,80),
+    // buys TNT in shop 2 earlier, then pillars up using TNT
+    // to get close enough to blow the 991 ceiling at y=59.
+    // No other adjacent floor tiles to reach it, so tower-up is required.
+
+    // =========================
+    // 7) DEEP VAULT BEYOND CEILING
+    // =========================
+    // corridor after the ceiling, leading deeper
+    carveTunnel([[75, 56], [80, 60], [80, 68]]);
+
+    // deep vault room
+    carveRect(77, 66, 88, 74);
+
+    // high-tier ores
+    putOre(80, 68, 546);  // Aurorite
+    putOre(82, 69, 534);  // Jakub
+    putOre(84, 70, 521);  // Ruinite
+
+    // some random pockets around vault
+    carveRect(76, 72, 78, 76);
+    putOre(77, 73, 546);
+
+    carveRect(85, 72, 88, 76);
+    putOre(86, 74, 514);
+    world[17][16].type = 5
+    world[17][17].type = 5
+}
+
+
+
 
 function room1() {
     const WIDTH = MAX_X;  // 40
