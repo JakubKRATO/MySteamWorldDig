@@ -207,6 +207,10 @@ def tutorial():
 def dungeon():
     return render_template("dungeon.html")
 
+@app.route("/playground")
+def playground():
+    return render_template("playground.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
