@@ -203,15 +203,6 @@ def getLeaderboards():
 def tutorial():
     return render_template("tutorial.html")
 
-@app.route("/dungeon")
-def dungeon():
-    return render_template("dungeon.html")
-
-@app.route("/playground")
-def playground():
-    return render_template("playground.html")
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -282,11 +273,6 @@ def register():
 def logout():
     session.clear()
     return redirect("/")
-
-@app.route("/martin-rindos")
-def martinrindos():
-    return render_template("martin-rindos.html")
-
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
