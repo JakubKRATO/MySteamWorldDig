@@ -504,8 +504,14 @@ const renderWorld = () => {
     }
 
     // now we draw the player
-    setColor("deepskyblue");
-    canvas.fillRect(
+    // setColor("deepskyblue");
+    // canvas.fillRect(
+    //   (player.pos.x - startX) * TILE_SIZE,
+    //   (player.pos.y - startY) * TILE_SIZE,
+    //   TILE_SIZE, TILE_SIZE
+    // );
+    canvas.drawImage(
+        colors["dorian"],
       (player.pos.x - startX) * TILE_SIZE,
       (player.pos.y - startY) * TILE_SIZE,
       TILE_SIZE, TILE_SIZE
@@ -1582,6 +1588,8 @@ for (let i = 1; i < 6; i++) {
     loadTexture(545 + i, `static/blocks/Aurorite${i}.png`);
 }
 
+// rendering skins
+loadTexture("dorian", "/static/skins/dorian/dorian.png")
 setInterval(() => {
     console.log(`world[${player.pos.y}][${player.pos.x}]`);
 }, 500);
