@@ -274,6 +274,10 @@ def logout():
     session.clear()
     return redirect("/")
 
+@app.route("/news")
+def news():
+    return render_template("news.html")
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
     debugMode = os.getenv("debug")
