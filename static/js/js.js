@@ -504,18 +504,18 @@ const renderWorld = () => {
     }
 
     // now we draw the player
-    // setColor("golden");
-    // canvas.fillRect(
-    //   (player.pos.x - startX) * TILE_SIZE,
-    //   (player.pos.y - startY) * TILE_SIZE,
-    //   TILE_SIZE, TILE_SIZE
-    // );
-    canvas.drawImage(
-        colors["dorian"],
+    setColor("deepskyblue");
+    canvas.fillRect(
       (player.pos.x - startX) * TILE_SIZE,
       (player.pos.y - startY) * TILE_SIZE,
       TILE_SIZE, TILE_SIZE
     );
+    // canvas.drawImage(
+    //     colors["dorian"],
+    //   (player.pos.x - startX) * TILE_SIZE,
+    //   (player.pos.y - startY) * TILE_SIZE,
+    //   TILE_SIZE, TILE_SIZE
+    // );
 
 };
 

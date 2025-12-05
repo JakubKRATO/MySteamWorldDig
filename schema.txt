@@ -5,8 +5,9 @@ CREATE TABLE users (
     coins INT DEFAULT 0,
     xp INT DEFAULT 0,
     wins INT DEFAULT 0,
+    skin varchar(50) DEFAULT "default",
     time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_online DATETIME 
+    last_online DATETIME
 )
 CREATE TABLE games (
     id INT AUTO_INCREMENT PRIMARY KEY,
