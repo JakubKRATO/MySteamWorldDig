@@ -1,0 +1,106 @@
+{
+    "default" : {
+        "player": "/static/skins/dorian/dorian.png",
+
+        "0": "white",
+        "1": "rgb(75, 39, 22)",
+        "2": "rgb(69, 79, 89)",
+        "3": "orange",
+        "4": "green",
+        "5": "rgba(75, 75, 75, 1)",
+        "6": "rgb(78, 95, 210)",
+
+        "13": "rgba(37, 164, 17, 1)",
+        "14": "sienna",
+        "15": "saddlebrown",
+
+        "23": "slategray",
+        "24": "darkgray",
+        "25": "gray",
+
+        "32": "rgba(101, 101, 101, 1)",
+        "33": "rgba(85, 85, 85, 1)",
+        "34": "rgba(71, 71, 71, 1)",
+        "35": "rgba(61, 61, 61, 1)",
+
+        "41": "rgba(85, 60, 60, 1)",
+        "42": "rgba(92, 92, 92, 1)",
+        "43": "rgba(59, 59, 59, 1)",
+        "44": "rgba(20, 20, 20, 1)",
+        "45": "rgba(0, 0, 0, 1)",
+
+        "102": "rgb(28, 28, 28)",
+        "103": "rgb(40, 39, 39)",
+        "104": "rgb(46, 44, 44)",
+        "105": "rgb(59, 56, 56)",
+
+        "112": "rgba(134, 65, 16, 1)",
+        "113": "rgb(120, 61, 18)",
+        "114": "rgb(90, 45, 14)",
+        "115": "rgb(62, 30, 8)",
+
+        "504": "rgb(227, 41, 103)",
+        "505": "rgba(207, 30, 89, 1)",
+        "506": "rgba(198, 29, 85, 1)",
+        "507": "rgba(154, 30, 71, 1)",
+        "508": "rgba(122, 19, 53, 1)",
+        "509": "rgba(84, 13, 36, 1)",
+        "510": "rgba(57, 8, 24, 1)",
+
+        "514": "rgba(41, 227, 125, 1)",
+        "515": "rgba(20, 205, 103, 1)",
+        "516": "rgba(40, 176, 101, 1)",
+        "517": "rgba(43, 148, 90, 1)",
+        "518": "rgba(25, 113, 65, 1)",
+        "519": "rgba(12, 75, 40, 1)",
+        "520": "rgba(7, 51, 27, 1)",
+
+        "521": "rgba(207, 4, 4, 1)",
+        "522": "rgba(196, 12, 12, 1)",
+        "523": "rgba(189, 20, 20, 1)",
+        "524": "rgba(157, 7, 7, 1)",
+        "525": "rgba(156, 18, 18, 1)",
+        "526": "rgba(146, 14, 14, 1)",
+        "527": "rgba(133, 9, 9, 1)",
+        "528": "rgba(126, 15, 15, 1)",
+        "529": "rgba(115, 10, 10, 1)",
+        "530": "rgba(101, 6, 6, 1)",
+
+        "991": "static/blocks/hard_wall.jpg",
+        "992": "rgba(255, 0, 0, 1)",
+        "993": "rgba(255, 255, 255, 1)",
+
+        "994": "static/blocks/blue_wall.png",
+        "995": "static/blocks/green_wall.png",
+        "996": "static/blocks/white_wall.png",
+
+        "997": "static/blocks/info.png",
+
+        "1000": "static/blocks/blue_diamond.png",
+        "1001": "static/blocks/white_key.png",
+        "1002": "static/blocks/blue_key.png",
+        "1003": "static/blocks/green_key.png",
+
+        "1100": "static/blocks/horrorite.png",
+
+        "533": "static/blocks/jakub1.png",
+        "534": "static/blocks/jakub2.png",
+        "535": "static/blocks/jakub3.png",
+        "536": "static/blocks/jakub4.png",
+        "537": "static/blocks/jakub5.png",
+        "538": "static/blocks/jakub6.png",
+        "539": "static/blocks/jakub7.png",
+        "540": "static/blocks/jakub8.png",
+
+        "546": "static/blocks/Aurorite1.png",
+        "547": "static/blocks/Aurorite2.png",
+        "548": "static/blocks/Aurorite3.png",
+        "549": "static/blocks/Aurorite4.png",
+        "550": "static/blocks/Aurorite5.png",
+
+        "999": "rgba(9, 0, 37, 1)"
+    },
+    "dorian" : {
+        "player" : "/static/skins/dorian/dorian.png"
+    }
+}
