@@ -1,6 +1,7 @@
 import os
 import uuid
 import math
+import json
 import random
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -126,7 +127,19 @@ def game():
     if not session.get("name"):
         return redirect("/login")
     
-    return render_template("game.html")
+    with open("static/skins.json", "r", encoding="utf-8") as file:
+        skins = json.load(file)
+    
+    default = skins["default"]
+    connection, db = activate_db()
+    db.execute("SELECT skin FROM users WHERE id = %s;", (session["user_id"],))
+
+    playerSkinDB = db.fetchone()
+
+    playerSkin = skins[playerSkinDB[0]]
+    
+    skin = {**default, **playerSkin}
+    return render_template("game.html", skin=json.dumps(skin))
 
 @app.route("/summary")
 def summary():

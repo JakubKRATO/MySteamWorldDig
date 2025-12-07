@@ -31,7 +31,7 @@ var tntUses = parseInt(localStorage.getItem("tntUses")) || 0
 /* CONFIG AREA */
 var movementSpeed = 0.3;
 var diggingSpeed = 0.3;
-const colors = {
+var colors = {
     0: "white",
     1: "rgb(75, 39, 22)",
     2: "rgb(69, 79, 89)",
@@ -296,7 +296,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 0,
+    money: 9999,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
@@ -461,7 +461,6 @@ const updateWorld = () => {
 };
 const renderWorld = () => {
     if (ended) return
-    // --- CAMERA (tile-based) ---
     cameraX = player.pos.x - Math.floor(DISPLAY_X / 2);
     cameraY = player.pos.y - Math.floor(DISPLAY_Y / 2);
     
@@ -480,10 +479,13 @@ const renderWorld = () => {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
             block = world[y][x];
-
-            if ([534,535,536,537,538,539,540,546,547,548,549,550,994,995,996,991,997,1001,1002,1003,1000,1100].includes(block.type) && !block.darkness) {
-                canvas.drawImage(colors[block.type], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                continue
+            if (ULTIMATE) {
+                setColor(colors[block.type])
+            } else {
+                if ([534,535,536,537,538,539,540,546,547,548,549,550,994,995,996,991,997,1001,1002,1003,1000,1100].includes(block.type) && !block.darkness) {
+                    canvas.drawImage(colors[block.type], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                    continue
+                }
             }
             
             if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness && y > 7) {
@@ -504,19 +506,12 @@ const renderWorld = () => {
     }
 
     // now we draw the player
-    setColor("deepskyblue");
+    setColor(colors["player"]);
     canvas.fillRect(
-      (player.pos.x - startX) * TILE_SIZE,
-      (player.pos.y - startY) * TILE_SIZE,
-      TILE_SIZE, TILE_SIZE
+        (player.pos.x - startX) * TILE_SIZE,
+        (player.pos.y - startY) * TILE_SIZE,
+        TILE_SIZE, TILE_SIZE
     );
-    // canvas.drawImage(
-    //     colors["dorian"],
-    //   (player.pos.x - startX) * TILE_SIZE,
-    //   (player.pos.y - startY) * TILE_SIZE,
-    //   TILE_SIZE, TILE_SIZE
-    // );
-
 };
 
 const updatePlayer = () => {    
@@ -1555,6 +1550,11 @@ document.getElementsByClassName("functional")[1].addEventListener("click",() => 
 });
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const loadTexture = (type, path) => {
+    if (!path.startsWith("static")) {
+        colors[type] = path
+        console.log(`setting ${type} as ${path}`)
+        return;
+    }
     let img = new Image()
     img.src = path
     img.onload = () => {
@@ -1567,29 +1567,39 @@ const loadTexture = (type, path) => {
 shopRender()
 toolShopRender()
 
-// Rendering textures
-loadTexture(991, "static/blocks/hard_wall.jpg");
-loadTexture(994, "static/blocks/blue_wall.png");
-loadTexture(995, "static/blocks/green_wall.png");
-loadTexture(996, "static/blocks/white_wall.png");
-loadTexture(1001, "static/blocks/white_key.png");
-loadTexture(1002, "static/blocks/blue_key.png");
-loadTexture(1003, "static/blocks/green_key.png");
-loadTexture(997, "static/blocks/info.png");
-loadTexture(1000, "static/blocks/blue_diamond.png");
-loadTexture(1100, "static/blocks/horrorite.png");
 
-// Load Jakub
-for (let i = 1; i < 8; i++) {
-    loadTexture(533 + i, `static/blocks/jakub${i}.png`);
-}
-// Load Aurorite
-for (let i = 1; i < 6; i++) {
-    loadTexture(545 + i, `static/blocks/Aurorite${i}.png`);
-}
 
-// rendering skins
-loadTexture("dorian", "/static/skins/dorian/dorian.png")
+var skin = document.querySelector("#data").attributes["data-skin"].value
+skin = JSON.parse(skin)
+const ULTIMATE = skin[13] == "black" ? true : false
+console.log(`Ultimate mode: ${ULTIMATE}`);
+const loadTextures = () => {
+    // Rendering textures
+    loadTexture(991, skin["991"]);
+    console.log(skin[991])
+    loadTexture(994, skin["994"]);
+    loadTexture(995, skin["995"]);
+    loadTexture(996, skin["996"]);
+    loadTexture(1001, skin["1001"]);
+    loadTexture(1002, skin["1002"]);
+    loadTexture(1003, skin["1003"]);
+    loadTexture(997, skin["997"]);
+    loadTexture(1000, skin["1000"]);
+    loadTexture(1100, skin["1100"]);
+    
+    // Load Jakub
+    for (let i = 1; i < 8; i++) {
+        loadTexture(533 + i, skin[533 + i]);
+    }
+    // Load Aurorite
+    for (let i = 1; i < 6; i++) {
+        loadTexture(545 + i, skin[545 + i]);
+    }
+    loadTexture("player", skin["player"])
+    colors = {...colors, ...skin}
+};
+loadTextures();
+
 setInterval(() => {
     console.log(`world[${player.pos.y}][${player.pos.x}]`);
 }, 500);
