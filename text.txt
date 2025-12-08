@@ -102,15 +102,12 @@
 
 999 BEDROCK
 
-REWARD SYSTEM:
-#################
-
-XP: // TODO dokumentacia
-COINS: randomInt: 3 - 5
-WINS: 1
-
-
-
-TODO:
-achviementy
-    - funkcia getAchvievement() by bola tam kde sa orecko dava do inventara (achviementy za new ore found) + nejake ine co by si chcel dat
+ULTIMATE TRIAL music links:
+https://music.youtube.com/watch?v=wPOF5FgG3DU&si=7suGlkiKpJjp7TF3 - A1
+https://music.youtube.com/watch?v=pJc5SZTcFrw&si=ka9lo42hkVTMgn5f - A3
+https://music.youtube.com/watch?v=eferNVXDAbE&si=4Y-T7INhysjVsIAT - A4
+https://music.youtube.com/watch?v=XRu-C_rX9xg&si=cgY73CDpYeVAauYV - B3
+https://music.youtube.com/watch?v=89Id2T3tzKM&si=B_wxQY8F6bmyPQpD - B5
+https://music.youtube.com/watch?v=I-xn5w8VXVQ&si=pqaGcy1GzE7dn86O - C1
+https://music.youtube.com/watch?v=odaoC959Xj4&si=lZ_bKTC0h00qZQaP - C2
+https://music.youtube.com/watch?v=1qKKU76E7Bg&si=X9gtAUGGz9HPIVzk - D3

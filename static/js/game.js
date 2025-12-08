@@ -1,3 +1,8 @@
+if (window.innerWidth < 600) {
+    alert("This game only works on a larger device. (like a PC!). Please come back on your computer. You'll need a keyboard to play!");
+    window.location.href = "/"
+}
+
 const startButton = document.getElementsByTagName("button")[0];
 const game = document.getElementsByTagName("canvas")[0];
 const canvas = game.getContext("2d");
@@ -338,6 +343,9 @@ const main = async () => {
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
     // Main game loop runs here (30 FPS)
+    if (ULTIMATE) {
+        musicPlayer();
+    }
     gameloop = setInterval(() => {
         updatePlayer()
         renderWorld()
@@ -1596,6 +1604,18 @@ const loadTextures = () => {
 };
 loadTextures();
 
+const musicPlayer = () => {
+    const musicLinks = [
+        "static/sounds/A1.mp3",
+        "static/sounds/A3.mp3",
+        "static/sounds/A4.mp3",
+        "static/sounds/B3.mp3",
+        "static/sounds/B5.mp3",
+        "static/sounds/C1.mp3",
+        "static/sounds/C2.mp3",
+        "static/sounds/D3.mp3",
+    ]
+};
 setInterval(() => {
     console.log(`world[${player.pos.y}][${player.pos.x}]`);
 }, 500);
