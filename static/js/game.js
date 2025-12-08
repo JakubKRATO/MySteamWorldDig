@@ -296,7 +296,7 @@ var player = JSON.parse(localStorage.getItem("player")) || {
     bagSlots: 3,
     lamp: 1,
     pickStrength: 15,
-    money: 9999,
+    money: 0,
     cardio: 1,
     swiftPickaxe: 1,
     midas: 0,
@@ -333,7 +333,6 @@ const main = async () => {
 
     sessionStart = Date.now()
     /* TESTING CHANGES TO THE WORLD SPACE*/
-
 
     
     /* TESTING CHANGES TO THE WORLD SPACE*/
@@ -479,19 +478,16 @@ const renderWorld = () => {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
             
             block = world[y][x];
-            if (ULTIMATE) {
-                setColor(colors[block.type])
-            } else {
-                if ([534,535,536,537,538,539,540,546,547,548,549,550,994,995,996,991,997,1001,1002,1003,1000,1100].includes(block.type) && !block.darkness) {
-                    canvas.drawImage(colors[block.type], (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                    continue
-                }
+            let colorPath = colors[block.type]
+            if (typeof colorPath != "string") {
+                canvas.drawImage(colorPath, (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                continue
             }
             
             if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness && y > 7) {
                 setColor("black")
             } else {
-                setColor(colors[block.type])
+                setColor(colorPath)
             }
             try {
                 canvas.fillRect(
@@ -1561,7 +1557,7 @@ const loadTexture = (type, path) => {
         colors[type] = img
     };
     img.onerror = () => {
-        console.log(`Failed to load texture ${type}`);
+        console.error(`Failed to load texture ${type}`);
     };
 };
 shopRender()
@@ -1571,7 +1567,7 @@ toolShopRender()
 
 var skin = document.querySelector("#data").attributes["data-skin"].value
 skin = JSON.parse(skin)
-const ULTIMATE = skin[13] == "black" ? true : false
+const ULTIMATE = skin[13] == "rgba(0,0,0,1)" ? true : false
 console.log(`Ultimate mode: ${ULTIMATE}`);
 const loadTextures = () => {
     // Rendering textures
