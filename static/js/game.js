@@ -343,6 +343,11 @@ const main = async () => {
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
     // Main game loop runs here (30 FPS)
+    if (previousUltimate != null && Boolean(previousUltimate) != ULTIMATE) {
+        alert("You can only play this savefile with the ULTIMATE skin ON.");
+        window.location.href = "/myprofile"
+        return
+    }
     if (ULTIMATE) {
         musicPlayer();
     }
@@ -1536,6 +1541,7 @@ document.getElementsByClassName("functional")[0].addEventListener("click",() => 
         localStorage.setItem("time", totalPlayTime)
         localStorage.setItem("money", totalMoney)
         localStorage.setItem("tntUses", tntUses)
+        localStorage.setItem("ultimate", ULTIMATE)
         alert("Current state of the game has been saved to your device local storage!")
     } catch (error) {
         console.log(error);
@@ -1556,7 +1562,6 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const loadTexture = (type, path) => {
     if (!path.startsWith("static")) {
         colors[type] = path
-        console.log(`setting ${type} as ${path}`)
         return;
     }
     let img = new Image()
@@ -1576,11 +1581,12 @@ toolShopRender()
 var skin = document.querySelector("#data").attributes["data-skin"].value
 skin = JSON.parse(skin)
 const ULTIMATE = skin[13] == "rgba(0,0,0,1)" ? true : false
+const previousUltimate = localStorage.getItem("ultimate")
+
 console.log(`Ultimate mode: ${ULTIMATE}`);
-const loadTextures = () => {
+const loadTextures = async () => {
     // Rendering textures
     loadTexture(991, skin["991"]);
-    console.log(skin[991])
     loadTexture(994, skin["994"]);
     loadTexture(995, skin["995"]);
     loadTexture(996, skin["996"]);
@@ -1600,22 +1606,51 @@ const loadTextures = () => {
         loadTexture(545 + i, skin[545 + i]);
     }
     loadTexture("player", skin["player"])
+    if (ULTIMATE) {
+        await sleep(5000)
+        colors[999] = skin[999]
+        await sleep(3000)
+        colors[4] = skin[4]
+        await sleep(3000)
+        colors[3] = skin[3]
+        await sleep(3000)
+        colors[13] = skin[13]
+        await sleep(3000)
+    }
     colors = {...colors, ...skin}
 };
 loadTextures();
 
+const musicLinks = [
+    "static/sounds/A1.mp3",
+    "static/sounds/A3.mp3",
+    "static/sounds/A4.mp3",
+    "static/sounds/B3.mp3",
+    "static/sounds/B5.mp3",
+    "static/sounds/C1.mp3",
+    "static/sounds/C2.mp3",
+    "static/sounds/D3.mp3",
+];
+var musicIndex = 999;
+var randomPlaylist = [...musicLinks];
 const musicPlayer = () => {
-    const musicLinks = [
-        "static/sounds/A1.mp3",
-        "static/sounds/A3.mp3",
-        "static/sounds/A4.mp3",
-        "static/sounds/B3.mp3",
-        "static/sounds/B5.mp3",
-        "static/sounds/C1.mp3",
-        "static/sounds/C2.mp3",
-        "static/sounds/D3.mp3",
-    ]
+
+    if (musicIndex >= randomPlaylist.length) {
+        // this random shuffling alorithm was made using ChatGPT
+        for (let i = randomPlaylist.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [randomPlaylist[i], randomPlaylist[j]] = [randomPlaylist[j], randomPlaylist[i]];
+        }
+        console.log(randomPlaylist)
+        musicIndex = 0
+    }
+
+    const audio = new Audio(randomPlaylist[musicIndex])
+    audio.addEventListener("ended", musicPlayer)
+    audio.play()
+    musicIndex++;
 };
+
 setInterval(() => {
     console.log(`world[${player.pos.y}][${player.pos.x}]`);
 }, 500);

@@ -291,6 +291,10 @@ def logout():
 def news():
     return render_template("news.html")
 
+@app.route("/shop")
+def shop():
+    return render_template("shop.html")
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
     debugMode = os.getenv("debug")

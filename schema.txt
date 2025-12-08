@@ -20,3 +20,15 @@ CREATE TABLE games (
     completed INT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 )
+CREATE TABLE skins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name varchar(50) NOT NULL,
+    price INT NOT NULL
+)
+CREATE TABLE skin_transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    skin_id INT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(skin_id) REFERENCES skins(id)
+)
