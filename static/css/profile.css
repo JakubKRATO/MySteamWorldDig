@@ -20,9 +20,6 @@ ul {
 li {
     font-size: 1.3rem;
 }
-li img {
-    width: 20px;
-}
 .wins {
     transform: translateY(-25px);
     margin-left: 80px;

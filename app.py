@@ -268,7 +268,6 @@ def register():
             return render_template("chyba.html", message="Nezadal si heslo!")
 
         hash = generate_password_hash(password)
-        print(hash)
         # check if user with this name exists
         # write to db
         print("Gonna register a new user! " + nick)

@@ -123,3 +123,7 @@ nav li:hover {
         scale: 0.8;
     }
 }
+
+img.coin {
+    width: 20px !important;
+}
