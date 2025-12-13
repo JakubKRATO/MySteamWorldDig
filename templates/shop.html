@@ -10,11 +10,16 @@
 <h1>SHOP</h1>
 <h2>Skins</h2>
 <div class="container">
+    {% for row in data %}
     <div class="skin">
-        <h3>Zochova</h3>
-        <div class="price">Cena: <div class="number">3</div><img src="/static/img/coin.svg" alt="" class="coin"></div>
+        <div class="left">
+            <h3>{{ row[2] }}</h3>
+            <div class="price">Cena: &nbsp; <div class="number">{{ row[4] }}</div><img src="/static/img/coin.svg" alt="" class="coin"></div>
+            <button data-id="{{ row[0] }}" class="buy">Buy</button>
+        </div>
+        <img src="{{ row[3] }}" alt="" class="banner">
     </div>
+    {% endfor %}
+    <script src="/static/js/buy.js"></script>
 </div>
-
-
 {% endblock %}

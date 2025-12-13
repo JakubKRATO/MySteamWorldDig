@@ -293,7 +293,20 @@ def news():
 
 @app.route("/shop")
 def shop():
-    return render_template("shop.html")
+    connection, db = activate_db()
+    db.execute("SELECT * FROM skins")
+
+    data = db.fetchall()
+
+    return render_template("shop.html", data=data)
+
+@app.route("/buySkin", methods=["POST"])
+def buySkin():
+    connection, db = activate_db()
+
+    return {"message" : "ok"}
+
+    # check if the user already has the skin
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
@@ -301,4 +314,6 @@ if __name__ == "__main__":
     print(f"Server running on port {port}")
     app.run(host="0.0.0.0",debug=debugMode,port=port)
 
-    
+
+def checkPlayerHasSkin(skinId,playerId):
+    connection, db = activate_db()

@@ -1,3 +1,27 @@
-.price {
+.skin {
     display: flex;
+    gap: 20px;
+    outline: 2px solid gray;
+    padding: 10px;
+    border-radius: 2px;
+}
+.skin h3 {
+    font-size: 2rem;
+    margin: 10px 0;
+}
+.skin .banner {
+    border-radius: 2px;
+    width: 200px;
+}
+.skin .price {
+    display: flex;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+}
+.skin button {
+    font-size: 1.5rem;
+    padding: 10px 40px;
+}
+.skin .number {
+    margin-right: 5px;
 }

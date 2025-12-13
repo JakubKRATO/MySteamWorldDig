@@ -23,6 +23,8 @@ CREATE TABLE games (
 CREATE TABLE skins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name varchar(50) NOT NULL,
+    see_name varchar(50) NOT NULL,
+    path varchar(50) NOT NULL,
     price INT NOT NULL
 )
 CREATE TABLE skin_transactions (
