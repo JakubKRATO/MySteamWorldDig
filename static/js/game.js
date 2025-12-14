@@ -339,13 +339,6 @@ const main = async () => {
     sessionStart = Date.now()
     /* TESTING CHANGES TO THE WORLD SPACE*/
 
-    world[3][40].type = 1000
-    world[3][41].type = 1100
-    world[3][42].type = 991
-    world[3][43].type = 1001
-    world[3][44].type = 1002
-    world[3][45].type = 1003
-    world[3][45].type = 534
     
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
