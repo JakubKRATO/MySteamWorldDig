@@ -120,6 +120,7 @@ def index():
 
     connection.commit()
     connection.close()
+    print(session["name"])
     return render_template("index.html", name=session["name"])
 
 @app.route("/game")

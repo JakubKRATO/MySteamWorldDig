@@ -49,7 +49,7 @@ body {
 }
 .welcome {
     position: absolute;
-    bottom: 1200px;
+    top: 50px;
     right: 80px;
     font-size: 2.5rem;
     animation: rotate 2s linear infinite;
@@ -92,6 +92,9 @@ nav li:hover {
     .hero {
         padding: 50px 0 300px 0;
     }
+    .welcome {
+        top: 400px
+    }
 }
 @media screen and (max-width: 780px) {
     h1 {
@@ -105,11 +108,11 @@ nav li:hover {
     nav li {
         font-size: 1rem;
     }
-    .welcome {
-        bottom: 1400px;
-    }
     main {
         margin-left: 10px;
+    }
+    .welcome {
+        top: 450px
     }
 }
 @media screen and (max-width: 630px) {
