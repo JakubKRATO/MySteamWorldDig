@@ -496,7 +496,7 @@ const renderWorld = () => {
                 canvas.drawImage(colorPath, (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 continue
             }
-            
+            console.log(colorPath)
             if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness && y > 7) {
                 setColor("black")
             } else {
@@ -774,7 +774,7 @@ const dig = (x,y, boom) => {
     if (target > 990 && boom && !world[y][x].ore) {
         world[y][x].type = setWall(y)
     }
-    if (boom && target.type == 991 || target.type == 992 || target.type == 993) {
+    if (boom && (target == 991 || target == 992 || target == 993)) {
         world[y][x].type = setWall(y)
     }
     if (boom && world[y][x].type > 100 && world[y][x].type < 990) {
@@ -1564,6 +1564,7 @@ const loadTexture = (type, path) => {
         colors[type] = path
         return;
     }
+    console.log(path, type)
     let img = new Image()
     img.src = path
     img.onload = () => {
