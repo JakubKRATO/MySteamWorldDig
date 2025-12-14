@@ -1,0 +1,36 @@
+{% extends "template.html" %}
+
+{% block title %} 
+    <title>My profile</title> 
+    <link rel="stylesheet" href="/static/css/myprofile.css">
+{% endblock %}
+
+{% block body %}
+<main>
+    <br><br><br>
+    <h1>Here you can edit your skins</h1>
+    <ul>
+        <li>
+            <h2>Default skin</h2>
+            {% if selected == "default" %}
+                <button class="change active" data-name="default">Selected</button>
+            {% else %}
+                <button class="change" data-name="default">Select</button>
+            {% endif %}
+        </li>
+        {% for row in skins %}
+        <li>
+            <h2>{{ row[2] }}</h2>
+            {% if selected == row[1] %}
+                <button class="change active" data-name="{{ row[1] }}">Selected</button>
+            {% else %}
+                <button class="change" data-name="{{ row[1] }}">Select</button>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    <h2>Warning! If you have Ultimate skin active and you switch, your progress (in a saved game) will be erased!</h2>
+    <script src="/static/js/myprofile.js"></script>
+</main>
+
+{% endblock %}

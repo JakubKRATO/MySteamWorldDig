@@ -1,0 +1,19 @@
+main ul {
+    display: flex;
+    border: 1px solid gray;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px;
+}
+main ul li {
+    border: 2px solid gray;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+main ul li button.active {
+    background-color: black !important;
+    border: none !important;
+}

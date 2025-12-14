@@ -161,7 +161,7 @@ def summary():
 @app.route("/profile/<profile>")
 def profile(profile):
     connection, db = activate_db()
-    
+
     try:
         db.execute("SELECT nickname, coins, xp, wins, id FROM users WHERE nickname = %s;", (profile,))
 
@@ -181,6 +181,34 @@ def profile(profile):
     connection.close()
     return render_template("profile.html", data=data[0], time=time[0][0], money=money[0][0], tnt=tnt[0][0])
 
+@app.route("/myprofile")
+def myprofile():
+    if not session["user_id"]:
+        return render_template("login.html")
+    
+    connection, db = activate_db()
+    db.execute("SELECT skins.id, name, see_name FROM skins JOIN skin_transactions as t ON skins.id = t.skin_id WHERE user_id = %s;", (session["user_id"],))
+    data = db.fetchall()
+
+    db.execute("SELECT skin FROM users WHERE id = %s;", (session["user_id"],))
+    selected = db.fetchone()
+
+    print(data,selected)
+    return render_template("myprofile.html", skins=data, selected=selected[0])
+
+@app.route("/selectSkin", methods=["POST"])
+def selectSkin():
+    data_json = request.get_json()
+    name = data_json.get("name")
+
+    print(f"Chanhing skin to: {name}")
+    connection, db = activate_db()
+
+    # change user skin
+    db.execute("UPDATE users SET skin = %s WHERE id = %s;", (name, session["user_id"]))
+
+    connection.commit()
+    return {"message" : "ok"}
 @app.route("/leaderboards")
 def leaderboards():
     return render_template("leaderboards.html")
@@ -287,26 +315,67 @@ def logout():
     session.clear()
     return redirect("/")
 
-@app.route("/news")
-def news():
-    return render_template("news.html")
-
 @app.route("/shop")
 def shop():
+    if not session.get("name"):
+        return redirect("/login")
+    
     connection, db = activate_db()
     db.execute("SELECT * FROM skins")
+    skins = db.fetchall()
 
-    data = db.fetchall()
+    db.execute("SELECT skin_id FROM skin_transactions WHERE user_id = %s", (session["user_id"],))
+    bought = db.fetchall()
 
-    return render_template("shop.html", data=data)
+    user_skins = []
+    for i in bought:
+        user_skins.append(i[0])
+
+    index = 0    
+    for i in skins:
+        if i[0] in user_skins:
+            print("found a skin this player has")
+            tmp = list(skins[index]) 
+            tmp.append(1)
+            skins[index] = tuple(tmp)
+        index += 1
+
+    return render_template("shop.html", skins=skins)
 
 @app.route("/buySkin", methods=["POST"])
 def buySkin():
+    skin_id_json = request.get_json()
+    skin_id = skin_id_json.get("id")
+    if not skin_id:
+        return {"message" : "error"}
+
     connection, db = activate_db()
-
-    return {"message" : "ok"}
-
     # check if the user already has the skin
+    db.execute("SELECT skin_id FROM skin_transactions WHERE user_id = %s AND skin_id = %s;", (session["user_id"], skin_id))
+
+    hasSkin = db.fetchone()
+
+    if hasSkin:
+        return {"message" : "has"}
+    
+    # let's get user data to check if use has enough funds to even buy the skin
+    db.execute("SELECT coins FROM users WHERE id = %s;", (session["user_id"],))
+    coins = db.fetchone()[0]
+
+    # let's get the price
+    db.execute("SELECT price FROM skins WHERE id = %s;", (skin_id,))
+    price = db.fetchone()[0]
+
+    if coins < price:
+        return {"message" : "brokie"}
+    newCoins = coins - price
+
+    # let's buy the skin and update user coins
+    db.execute("UPDATE users SET coins = %s WHERE id = %s;", (newCoins, session["user_id"]))
+    db.execute("INSERT INTO skin_transactions (user_id, skin_id) VALUES (%s,%s)", (session["user_id"], skin_id))
+
+    connection.commit()    
+    return {"message" : "ok"}
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))
