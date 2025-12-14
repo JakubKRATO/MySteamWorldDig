@@ -9,14 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let name = button.attributes["data-name"].value
 
-            const result = await fetch("/selectSkin", {
+            await fetch("/selectSkin", {
                 method: "POST",
                 headers: {"Content-type" : "application/json"},
                 body: JSON.stringify({name: name})
             });
-            const data = await result.json()
 
-            if (data["message"] == "ok" && name == "ultimate") localStorage.clear()
             window.location.reload()
         });
     });

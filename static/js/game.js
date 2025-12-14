@@ -339,6 +339,13 @@ const main = async () => {
     sessionStart = Date.now()
     /* TESTING CHANGES TO THE WORLD SPACE*/
 
+    world[3][40].type = 1000
+    world[3][41].type = 1100
+    world[3][42].type = 991
+    world[3][43].type = 1001
+    world[3][44].type = 1002
+    world[3][45].type = 1003
+    world[3][45].type = 534
     
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
@@ -1247,7 +1254,7 @@ const generateDungeon2 = () => {
     world[164][47].type = 999
     world[164][48].type = 999
     world[164][49].type = 999
-    world[163][48].type = 1100
+    world[163][48].type = ULTIMATE ? 0 : 1100
 
     // second chamber
     for (let y of [0,1,2,3,4,5]) {
@@ -1606,7 +1613,7 @@ const loadTextures = async () => {
         loadTexture(545 + i, skin[545 + i]);
     }
     loadTexture("player", skin["player"])
-    if (ULTIMATE) {
+    if (ULTIMATE && !previousUltimate) {
         await sleep(5000)
         colors[999] = skin[999]
         await sleep(3000)
@@ -1617,7 +1624,14 @@ const loadTextures = async () => {
         colors[13] = skin[13]
         await sleep(3000)
     }
-    colors = {...colors, ...skin}
+    for (const key in skin) {
+        var value = skin[key]   
+
+        if (typeof value === "string" && !value.startsWith("static")) {
+            colors[key] = value
+        }
+    }
+
 };
 loadTextures();
 
@@ -1648,6 +1662,7 @@ const musicPlayer = () => {
     const audio = new Audio(randomPlaylist[musicIndex])
     audio.addEventListener("ended", musicPlayer)
     audio.play()
+    audio.volume = 0.01
     musicIndex++;
 };
 

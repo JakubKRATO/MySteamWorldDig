@@ -171,6 +171,19 @@
         "992": "rgba(255, 0, 0, 1)",
         "993": "rgba(255, 255, 255, 1)",
 
+        "994": "static/blocks/blue_wall.png",
+        "995": "static/blocks/green_wall.png",
+        "996": "static/blocks/white_wall.png",
+
+        "997": "static/blocks/info.png",
+
+        "1000": "static/blocks/blue_diamond.png",
+        "1001": "static/blocks/white_key.png",
+        "1002": "static/blocks/blue_key.png",
+        "1003": "static/blocks/green_key.png",
+
+        "1100": "static/blocks/horrorite.png",
+
         "533": "rgba(0,0,0,1)",
         "534": "rgba(0,0,0,1)",
         "535": "rgba(0,0,0,1)",
@@ -187,6 +200,7 @@
         "550": "rgba(0,0,0,1)",
 
         "999": "rgba(0,0,0,1)"
+
     },
     "dorian" : {
         "player" : "gold",
