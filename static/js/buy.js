@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await result.json()
 
             if (data["message"] == "ok") window.location.reload()
+            
+            if (data["message"] == "brokie") alert("You are too poor")
         });
     });
 });

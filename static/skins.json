@@ -201,20 +201,5 @@
 
         "999": "rgba(0,0,0,1)"
 
-    },
-    "dorian" : {
-        "player" : "gold",
-
-        "533": "static/skins/dorian/dorian1.png",
-        "534": "static/skins/dorian/dorian2.png",
-        "535": "static/skins/dorian/dorian3.png",
-        "536": "static/skins/dorian/dorian4.png",
-        "537": "static/skins/dorian/dorian5.png",
-        "538": "static/skins/dorian/dorian1.png",
-        "539": "static/skins/dorian/dorian2.png",
-        "540": "static/skins/dorian/dorian3.png",
-
-        "14": "static/skins/dorian/dorian3.png",
-        "15": "saddlebrown"
     }
 }

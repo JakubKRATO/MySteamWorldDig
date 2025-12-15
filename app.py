@@ -115,7 +115,6 @@ def index():
     
     now = datetime.now()
     connection, db = activate_db()
-    print(now.strftime("%Y-%m-%d %H:%M:%S"))
     db.execute("UPDATE users SET last_online = %s WHERE id = %s;", (now.strftime("%Y-%m-%d %H:%M:%S"),session["user_id"]))
 
     connection.commit()
@@ -383,7 +382,3 @@ if __name__ == "__main__":
     debugMode = os.getenv("debug")
     print(f"Server running on port {port}")
     app.run(host="0.0.0.0",debug=debugMode,port=port)
-
-
-def checkPlayerHasSkin(skinId,playerId):
-    connection, db = activate_db()
