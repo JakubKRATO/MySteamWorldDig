@@ -339,6 +339,7 @@ const main = async () => {
     sessionStart = Date.now()
     /* TESTING CHANGES TO THE WORLD SPACE*/
 
+    world[15][40].type = 991
     
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
@@ -489,17 +490,17 @@ const renderWorld = () => {
 
     for (let y = cameraY; y < cameraY + DISPLAY_Y; y++) {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
-            var DARK = false;
+
             block = world[y][x];
             let colorPath = colors[block.type]
+
             if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness && y > 7) {
                 setColor("black")
-
             } else {
                 setColor(colorPath)
-                DARK = true
             }
-            if (typeof colorPath != "string" && !DARK) {
+
+            if (typeof colorPath != "string" && !block.darkness) {
                 canvas.drawImage(colorPath, (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 continue
             }
@@ -1393,7 +1394,7 @@ const endgame = async (ending) => {
     });
     const ans = await message.json()
     if (ans["status"] == "cheater") {
-        alert("This run was already completed. No rewards gained.");
+        alert("Cheating.");
         window.location.href = `/leaderboards`
     } else {
         let coins = ans["coins"]

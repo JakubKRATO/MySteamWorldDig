@@ -80,6 +80,9 @@ def endRun():
     money = data.get("money")
     time = data.get("time")
 
+    if int(time) < 600000 or int(tnt) < 15 or int(money) < 130: # if less that 10 min, this must be cheating
+        return {"status" : "cheater"}
+    
     print(worldId, time, money, tnt)
     connection, db = activate_db()
 
@@ -110,9 +113,6 @@ def endRun():
 
 @app.route("/")
 def index():
-
-    return render_template("wait.html") # this is temporary
-
     if not session.get("name"):
         return render_template("index.html")
     
@@ -230,8 +230,8 @@ def getLeaderboards():
             # this query was written by AI (yes i feel ashamed)
             db.execute("SELECT u.nickname, g.time, g.money, g.tnt, g.timestamp FROM games g JOIN users u ON g.user_id = u.id JOIN (SELECT user_id, MIN(time) AS best_time FROM games WHERE completed = 1 GROUP BY user_id ) b ON g.user_id = b.user_id AND g.time = b.best_time WHERE g.completed = 1 ORDER BY g.time;")
         case "tnt":
-            # this query was easy I just changed the cash query a bit and voila!
-            db.execute("SELECT u.nickname, g.time, g.money, g.tnt, g.timestamp FROM games AS g JOIN users AS u ON g.user_id = u.id JOIN (SELECT user_id, MIN(tnt) as best_tnt FROM games GROUP BY user_id) AS secondTable ON g.user_id = secondTable.user_id AND g.tnt = secondTable.best_tnt ORDER BY g.tnt;")
+            # this query was AI too
+            db.execute("SELECT u.nickname, g.time, g.money, g.tnt, g.timestamp FROM games g JOIN users u ON g.user_id = u.id JOIN (SELECT user_id, MIN(tnt) AS best_tnt FROM games GROUP BY user_id) t ON g.user_id = t.user_id AND g.tnt = t.best_tnt JOIN ( SELECT user_id, tnt, MIN(time) AS best_time FROM games GROUP BY user_id, tnt) tt ON g.user_id = tt.user_id AND g.tnt = tt.tnt AND g.time = tt.best_time ORDER BY g.tnt;")
         case "wins":
             # this query was easy I just changed the cash query a bit and voila!
             db.execute("SELECT nickname, wins FROM users WHERE wins > 0 ORDER BY wins DESC;")
