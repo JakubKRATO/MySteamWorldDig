@@ -110,6 +110,9 @@ def endRun():
 
 @app.route("/")
 def index():
+
+    return render_template("wait.html") # this is temporary
+
     if not session.get("name"):
         return render_template("index.html")
     
