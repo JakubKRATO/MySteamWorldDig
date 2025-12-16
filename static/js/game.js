@@ -343,11 +343,11 @@ const main = async () => {
     /* TESTING CHANGES TO THE WORLD SPACE*/
     
     // Main game loop runs here (30 FPS)
-    if (previousUltimate != null && Boolean(previousUltimate) != ULTIMATE) {
-        alert("You can only play this savefile with the ULTIMATE skin ON.");
-        window.location.href = "/myprofile"
-        return
-    }
+    // if (previousUltimate != null && Boolean(previousUltimate) != ULTIMATE) {
+    //     alert("You can only play this savefile with the ULTIMATE skin ON.");
+    //     window.location.href = "/myprofile"
+    //     return
+    // }
     if (ULTIMATE) {
         musicPlayer();
     }
