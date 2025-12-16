@@ -489,18 +489,19 @@ const renderWorld = () => {
 
     for (let y = cameraY; y < cameraY + DISPLAY_Y; y++) {
         for (let x = cameraX; x < cameraX + DISPLAY_X; x++) {
-            
+            var DARK = false;
             block = world[y][x];
             let colorPath = colors[block.type]
-            if (typeof colorPath != "string") {
-                canvas.drawImage(colorPath, (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                continue
-            }
-            console.log(colorPath)
             if (block.darkness && block.type != 0 && !DISABLE_DARKNESS || block.doorDarkness && y > 7) {
                 setColor("black")
+
             } else {
                 setColor(colorPath)
+                DARK = true
+            }
+            if (typeof colorPath != "string" && !DARK) {
+                canvas.drawImage(colorPath, (x - startX) * TILE_SIZE, (y - startY) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                continue
             }
             try {
                 canvas.fillRect(
@@ -1464,8 +1465,6 @@ Array.from(liTools).forEach(element => {
             
             switch (attribute) {
                 case "dynamite":
-                    console.log(player.tools);
-                    
                     player.tools["dynamite"]++;
             }
         }
@@ -1564,7 +1563,6 @@ const loadTexture = (type, path) => {
         colors[type] = path
         return;
     }
-    console.log(path, type)
     let img = new Image()
     img.src = path
     img.onload = () => {
