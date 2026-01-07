@@ -61,7 +61,6 @@ def startRun():
     connection, db = activate_db()
     worldId = str(uuid.uuid4())
 
-    print(session["user_id"])
     try:
         db.execute("INSERT INTO games (user_id, world_id, completed) VALUES (%s, %s, 0);", (session["user_id"], worldId))
     except Exception:
@@ -186,7 +185,7 @@ def profile(profile):
 
 @app.route("/myprofile")
 def myprofile():
-    if not session["user_id"]:
+    if not session.get("name"):
         return render_template("login.html")
     
     connection, db = activate_db()
